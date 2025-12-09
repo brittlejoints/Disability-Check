@@ -48,12 +48,20 @@ const isValidUrl = (urlString: string) => {
   }
 }
 
+// Simple check to see if string looks like a JWT (starts with 'ey' and has dots)
+const isValidKey = (keyString: string) => {
+  return keyString && keyString.startsWith('ey') && keyString.includes('.');
+}
+
 // Only initialize if keys are present AND valid URL, and not the placeholder text
+// AND the key looks like a valid JWT
 const isConfigured = 
   SUPABASE_CONFIG.url && 
   SUPABASE_CONFIG.key && 
   isValidUrl(SUPABASE_CONFIG.url) &&
-  !SUPABASE_CONFIG.url.includes('PASTE_YOUR');
+  isValidKey(SUPABASE_CONFIG.key) &&
+  !SUPABASE_CONFIG.url.includes('PASTE_YOUR') &&
+  !SUPABASE_CONFIG.key.includes('PASTE_YOUR');
 
 export const supabase = isConfigured 
   ? createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.key)

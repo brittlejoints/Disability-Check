@@ -31,6 +31,57 @@ export const formatDateReadable = (dateStr: string): string => {
   return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 };
 
+// --- INCOME PRORATION LOGIC ---
+
+// Get number of days in a specific month
+export const getDaysInMonth = (year: number, month: number): number => {
+    return new Date(year, month, 0).getDate();
+};
+
+// Calculate how much of a pay period falls within a target month
+export const calculateAttributedIncome = (
+    stubAmount: number, 
+    stubStart: string, 
+    stubEnd: string, 
+    targetMonthStr: string
+): number => {
+    // Dates
+    const start = new Date(stubStart);
+    const end = new Date(stubEnd);
+    const targetDate = parseDate(targetMonthStr); // First of target month
+    
+    // Validate
+    if (isNaN(start.getTime()) || isNaN(end.getTime()) || isNaN(targetDate.getTime())) return 0;
+    if (end < start) return 0;
+
+    // Target Month Range
+    const targetYear = targetDate.getFullYear();
+    const targetMonthIndex = targetDate.getMonth(); // 0-11
+    const targetStart = new Date(targetYear, targetMonthIndex, 1);
+    const targetEnd = new Date(targetYear, targetMonthIndex + 1, 0); // Last day of month
+
+    // Calculate Intersection
+    // The overlap start is the later of the two start dates
+    const overlapStart = start > targetStart ? start : targetStart;
+    // The overlap end is the earlier of the two end dates
+    const overlapEnd = end < targetEnd ? end : targetEnd;
+
+    // Check if there is actual overlap
+    if (overlapStart > overlapEnd) return 0;
+
+    // Calculate Days
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const totalStubDays = Math.round((end.getTime() - start.getTime()) / msPerDay) + 1;
+    const overlapDays = Math.round((overlapEnd.getTime() - overlapStart.getTime()) / msPerDay) + 1;
+
+    // Prorate
+    if (totalStubDays === 0) return 0;
+    return (stubAmount * (overlapDays / totalStubDays));
+};
+
+// --- END INCOME PRORATION LOGIC ---
+
+
 // Core logic engine
 export const calculateStatus = (entries: WorkEntry[]): CalculationResult => {
   // 1. Sort entries by date ascending

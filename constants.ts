@@ -8,7 +8,7 @@ export const THRESHOLDS_2025: MonthlyThresholds = {
 // ⚠️ SUPABASE CONFIGURATION ⚠️
 // 1. Go to your Supabase Project (https://supabase.com/dashboard)
 // 2. Navigate to: Project Settings (Gear Icon) -> API
-// 3. Copy the "Project URL" and "anon public" Key
+// 3. Copy the "Project URL" and "anon public" Key (It must start with "ey...")
 // 4. Paste them inside the quotes below:
 
 export const SUPABASE_CONFIG = {
@@ -16,7 +16,8 @@ export const SUPABASE_CONFIG = {
   url: 'https://aefxyasdcxwtsffsevjd.supabase.co', 
 
   // Example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
-  key: 'sb_publishable_8foF6BhdFkYnifMulm5UkQ_6k9yySyU'  
+  // MUST start with "ey..."
+  key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFlZnh5YXNkY3h3dHNmZnNldmpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUzMDI5MDcsImV4cCI6MjA4MDg3ODkwN30.5WqPEz2LxlNDcT-zTJPzozJXEFR_eVLvu4YEV_y-aWE'  
 };
 
 export const COLORS = {

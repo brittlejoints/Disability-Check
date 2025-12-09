@@ -27,11 +27,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // Check active session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    // Check active session with error handling
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (error) {
+        console.warn("Supabase session check failed (using guest mode):", error.message);
+      }
+      setSession(data?.session ?? null);
+      setUser(data?.session?.user ?? null);
       setLoading(false);
+    }).catch(err => {
+        console.error("Unexpected Supabase error:", err);
+        setLoading(false);
     });
 
     // Listen for changes
