@@ -1,0 +1,5 @@
+{
+  "name": "Disability Check",
+  "description": "A web-based tool for SSDI recipients to track income, understand work rules (TWP, EPE), and protect their benefits.",
+  "requestFramePermissions": []
+}
