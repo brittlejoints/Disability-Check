@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import Badge from '../components/Badge';
-import IncomeCalculator from '../components/IncomeCalculator';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { WorkEntry, PhaseType, CalculationResult, BenefitStatus } from '../types';
 import { calculateStatus, formatCurrency, formatDateReadable, generateId, parseDate } from '../utils/logic';
@@ -23,7 +23,6 @@ const Dashboard: React.FC = () => {
   
   // UI State
   const [timelineView, setTimelineView] = useState<'current' | 'future'>('current');
-  const [showCalculator, setShowCalculator] = useState(false);
   
   // Delete Modal State
   const [entryToDelete, setEntryToDelete] = useState<string | null>(null);
@@ -191,21 +190,6 @@ const Dashboard: React.FC = () => {
     setMonth('');
     setIncome('');
     setNote('');
-  };
-
-  // Calculator Handler
-  const openCalculator = () => {
-    setFormError(null);
-    if (!month) {
-        setFormError("Please select a month first to use the calculator.");
-        return;
-    }
-    setShowCalculator(true);
-  };
-
-  const handleCalculatorApply = (total: number) => {
-    setIncome(total.toFixed(2));
-    setShowCalculator(false);
   };
 
   // --- DEBUG / DEMO HELPER ---
@@ -495,16 +479,9 @@ const Dashboard: React.FC = () => {
                     <label htmlFor="gross-income" className="text-sm font-semibold text-burgundy">
                       Gross Income
                     </label>
-                    <button 
-                        type="button" 
-                        onClick={openCalculator}
-                        className="text-xs font-bold text-coral flex items-center gap-1 hover:text-terracotta transition-colors focus:outline-none focus:underline"
-                    >
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                        </svg>
-                        Calculator
-                    </button>
+                    <Link to="/income-guide" target="_blank" className="text-xs font-bold text-coral hover:text-terracotta hover:underline transition-colors focus:outline-none">
+                        Need help calculating?
+                    </Link>
                   </div>
                   <input
                     id="gross-income"
@@ -739,15 +716,6 @@ const Dashboard: React.FC = () => {
           </div>
 
         </div>
-
-        {/* CALCULATOR MODAL */}
-        {showCalculator && (
-            <IncomeCalculator 
-                targetMonth={month} 
-                onApply={handleCalculatorApply} 
-                onClose={() => setShowCalculator(false)} 
-            />
-        )}
         
         {/* DELETE CONFIRMATION MODAL */}
         <ConfirmationModal 

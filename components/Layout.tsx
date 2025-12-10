@@ -8,6 +8,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Dashboard', path: '/dashboard' },
+    { name: 'Income Help', path: '/income-guide' },
     { name: 'Rules', path: '/learn' },
     { name: 'About', path: '/about' },
   ];
@@ -35,7 +36,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </div>
 
             {/* Desktop Nav */}
-            <nav className="hidden md:flex space-x-12">
+            <nav className="hidden md:flex space-x-10">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
