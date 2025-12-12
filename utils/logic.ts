@@ -33,45 +33,40 @@ export const formatDateReadable = (dateStr: string): string => {
 
 export const calculateAttributedIncome = (
   amount: number,
-  startStr: string,
-  endStr: string,
+  startDateStr: string,
+  endDateStr: string,
   targetMonthStr: string
 ): number => {
-  // Helper to parse YYYY-MM-DD into local date
-  const parseYMD = (s: string) => {
-    if (!s) return new Date(NaN);
-    const [y, m, d] = s.split('-').map(Number);
+  if (!amount || !startDateStr || !endDateStr || !targetMonthStr) return 0;
+
+  // Helper to parse YYYY-MM-DD to local midnight
+  const parseYMD = (str: string) => {
+    const [y, m, d] = str.split('-').map(Number);
     return new Date(y, m - 1, d);
   };
 
-  const start = parseYMD(startStr);
-  const end = parseYMD(endStr);
+  const start = parseYMD(startDateStr);
+  const end = parseYMD(endDateStr);
 
-  // Validation
-  if (isNaN(start.getTime()) || isNaN(end.getTime()) || end < start) return 0;
+  if (start > end) return 0;
+
+  // Target month range
+  const [tYear, tMonth] = targetMonthStr.split('-').map(Number);
+  const targetStart = new Date(tYear, tMonth - 1, 1);
+  const targetEnd = new Date(tYear, tMonth, 0); // Last day of target month
+
+  // Intersection
+  const overlapStart = start > targetStart ? start : targetStart;
+  const overlapEnd = end < targetEnd ? end : targetEnd;
+
+  if (overlapStart > overlapEnd) return 0;
 
   const oneDay = 1000 * 60 * 60 * 24;
   const totalDays = Math.round((end.getTime() - start.getTime()) / oneDay) + 1;
+  const overlapDays = Math.round((overlapEnd.getTime() - overlapStart.getTime()) / oneDay) + 1;
 
-  if (totalDays === 0) return 0;
-
-  const dailyRate = amount / totalDays;
-
-  // Target Range
-  const [tYear, tMonth] = targetMonthStr.split('-').map(Number);
-  const mStart = new Date(tYear, tMonth - 1, 1);
-  const mEnd = new Date(tYear, tMonth, 0);
-
-  // Overlap
-  const oStart = start > mStart ? start : mStart;
-  const oEnd = end < mEnd ? end : mEnd;
-
-  if (oStart > oEnd) return 0;
-
-  const overlapDays = Math.round((oEnd.getTime() - oStart.getTime()) / oneDay) + 1;
-  return overlapDays * dailyRate;
+  return (amount / totalDays) * overlapDays;
 };
-
 
 // Core logic engine
 export const calculateStatus = (entries: WorkEntry[]): CalculationResult => {
@@ -88,6 +83,9 @@ export const calculateStatus = (entries: WorkEntry[]): CalculationResult => {
   const serviceMonthDates: string[] = [];
 
   // First Pass: Determine Phases & TWP Completion
+  // We need to know when phases start/end globally before we can determine specific month status
+  // However, TWP completion depends on the entries themselves.
+  
   // We will run a simulation over time.
   const analyzed: AnalyzedEntry[] = [];
 

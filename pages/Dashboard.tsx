@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import Card from '../components/Card';
 import Button from '../components/Button';
 import Input from '../components/Input';
 import Badge from '../components/Badge';
 import ConfirmationModal from '../components/ConfirmationModal';
+import IncomeChart from '../components/IncomeChart';
 import { WorkEntry, PhaseType, CalculationResult, BenefitStatus } from '../types';
 import { calculateStatus, formatCurrency, formatDateReadable, generateId, parseDate } from '../utils/logic';
 import { THRESHOLDS_2025, EPE_DURATION } from '../constants';
@@ -261,7 +261,7 @@ const Dashboard: React.FC = () => {
         let bgClass = "bg-taupe/20"; 
         let title = `${m.dateStr}: No Record`;
         let label = "";
-        let opacity = isProjected ? "opacity-40" : "opacity-100";
+        let opacity = isProjected ? "opacity-60" : "opacity-100";
         let animation = "";
 
         if (m.entry) {
@@ -306,7 +306,7 @@ const Dashboard: React.FC = () => {
 
     const renderYearRow = (yearMonths: any[], yearNum: number) => (
         <div className="flex flex-col md:flex-row items-start md:items-center gap-4 py-4 border-b border-taupe/10 last:border-0">
-            <div className={`w-24 flex-shrink-0 ${isProjected ? 'opacity-40' : ''}`}>
+            <div className={`w-24 flex-shrink-0 ${isProjected ? 'opacity-50' : ''}`}>
                 <span className="text-sm font-bold text-slate uppercase">Year {yearNum}</span>
                 <span className="block text-xs text-slate/50">{yearMonths[0].date.getFullYear()}</span>
             </div>
@@ -319,14 +319,16 @@ const Dashboard: React.FC = () => {
     return (
         <div className="space-y-2 mt-6 relative">
             {isProjected && (
-                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm rounded-xl border border-taupe/10 text-center p-4 animate-fade-in-up">
-                    <div className="w-12 h-12 bg-taupe/20 rounded-full flex items-center justify-center mb-3">
+                <div className="mb-6 bg-taupe/10 rounded-xl p-4 flex items-start gap-4 border border-taupe/20 animate-fade-in-up">
+                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center flex-shrink-0 text-slate shadow-sm">
                         🔒
                     </div>
-                    <p className="text-burgundy font-serif text-lg mb-1">Projected View</p>
-                    <p className="text-slate text-sm max-w-sm">
-                        This 3-year safety net activates automatically once you complete your 9 Trial Work months.
-                    </p>
+                    <div>
+                        <h4 className="text-burgundy font-serif font-medium mb-1">Projected Future Timeline</h4>
+                        <p className="text-slate text-sm font-light leading-relaxed">
+                            This 36-month safety net is not active yet. It will begin automatically the month after your 9th Trial Work month is complete.
+                        </p>
+                    </div>
                 </div>
             )}
             
@@ -479,9 +481,14 @@ const Dashboard: React.FC = () => {
                     <label htmlFor="gross-income" className="text-sm font-semibold text-burgundy">
                       Gross Income
                     </label>
-                    <Link to="/income-guide" target="_blank" className="text-xs font-bold text-coral hover:text-terracotta hover:underline transition-colors focus:outline-none">
+                    <a 
+                        href="#/income-guide" 
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-bold text-coral hover:text-terracotta hover:underline transition-colors focus:outline-none"
+                    >
                         Need help calculating?
-                    </Link>
+                    </a>
                   </div>
                   <input
                     id="gross-income"
@@ -563,6 +570,24 @@ const Dashboard: React.FC = () => {
           {/* RIGHT COLUMN: Timeline & History */}
           <div className="lg:col-span-2 space-y-8 fade-in-up delay-200">
             
+            {/* NEW CHART CARD */}
+            {entries.length > 0 && (
+              <Card variant="glass" title="Income Trends">
+                  <IncomeChart entries={entries} />
+                  <div className="flex flex-wrap gap-4 md:gap-6 mt-6 justify-center text-xs text-slate">
+                      <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 rounded bg-[#6B9E78]"></span> Below TWP
+                      </div>
+                      <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 rounded bg-[#E67E50]"></span> TWP Usage
+                      </div>
+                      <div className="flex items-center gap-2">
+                          <span className="w-3 h-3 rounded bg-[#C95233]"></span> Over SGA
+                      </div>
+                  </div>
+              </Card>
+            )}
+
             {/* 3. Timeline / Long Term Tracker */}
              <Card variant="glass">
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
