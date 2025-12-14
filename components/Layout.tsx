@@ -138,7 +138,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   <Link to="/learn" className="hover:text-coral transition-colors">Rules</Link>
                </div>
                <p className="text-xs text-slate/50 font-light">
-                This is an independent educational tool. Not affiliated with the SSA.
+                This is an independent educational tool. Not affiliated with the SSA. Not responsible for status of check.
                </p>
             </div>
           </div>

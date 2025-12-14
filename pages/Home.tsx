@@ -11,7 +11,7 @@ const Home: React.FC = () => {
         <div className="max-w-4xl mx-auto relative z-10 fade-in-up">
           <h1 className="text-6xl md:text-8xl font-serif font-light text-burgundy mb-8 tracking-tight leading-[1.1]">
             Know your status.<br />
-            <span className="font-script italic text-coral">Keep your benefits.</span>
+            <span className="font-script text-coral">Keep your benefits.</span>
           </h1>
           <p className="mt-8 max-w-xl mx-auto text-xl text-charcoal/80 leading-relaxed font-light fade-in-up delay-100">
             Social Security rules shouldn't be a mystery. Track your work, understand the Trial Work Period, and move forward with confidence.

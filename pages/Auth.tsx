@@ -118,26 +118,42 @@ const Auth: React.FC = () => {
 
   return (
     <Layout>
-      <div className="min-h-[calc(100vh-6rem)] flex flex-col md:flex-row">
+      <div className="min-h-[calc(100vh-6rem)] flex flex-col lg:flex-row">
         
         {/* Left Side - Art/Message */}
-        <div className="hidden md:flex md:w-1/2 bg-burgundy relative overflow-hidden items-center justify-center p-12 text-white">
-            <div className="absolute top-0 left-0 w-full h-full opacity-30">
-                <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-coral rounded-full blur-[100px]"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-[300px] h-[300px] bg-peach rounded-full blur-[80px]"></div>
-            </div>
-            <div className="relative z-10 max-w-lg">
-                <h2 className="text-5xl font-serif mb-6 leading-tight">
-                    "Clarity is the first step to confidence."
-                </h2>
-                <p className="text-xl font-light opacity-80">
-                    Join thousands of people who are taking control of their work journey and protecting their benefits.
-                </p>
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-burgundy min-h-[600px]">
+            {/* Illustration Image */}
+            <img 
+              src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=2070&auto=format&fit=crop" 
+              alt="Calm office workspace with plants and light" 
+              className="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-overlay"
+            />
+            {/* Gradient Overlay for Text Readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-burgundy via-burgundy/40 to-transparent"></div>
+            
+            <div className="relative z-10 p-16 flex flex-col justify-end h-full text-white">
+                <blockquote className="mb-12 max-w-lg">
+                   <div className="mb-6 text-coral/80">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 8.44772 14.017 9V11C14.017 11.5523 13.5693 12 13.017 12H12.017V5H16.017C18.2261 5 20.017 6.79086 20.017 9V15C20.017 17.2091 18.2261 19 16.017 19H14.017V21ZM5.01697 21L5.01697 18C5.01697 16.8954 5.9124 16 7.01697 16H10.017C10.5693 16 11.017 15.5523 11.017 15V9C11.017 8.44772 10.5693 8 10.017 8H6.01697C5.46468 8 5.01697 8.44772 5.01697 9V11C5.01697 11.5523 4.56925 12 4.01697 12H3.01697V5H7.01697C9.22611 5 11.017 6.79086 11.017 9V15C11.017 17.2091 9.22611 19 7.01697 19H5.01697V21Z" />
+                      </svg>
+                   </div>
+                  <p className="text-3xl font-serif leading-relaxed italic opacity-95 mb-8">
+                    "I used to worry about every paycheck. Now I know exactly where I stand, and I can focus on my work."
+                  </p>
+                  <footer className="flex items-center gap-4">
+                     <div className="w-12 h-12 rounded-full bg-coral flex items-center justify-center text-white font-serif font-bold text-xl shadow-lg">S</div>
+                     <div>
+                       <span className="block font-bold text-lg">Sarah M.</span>
+                       <span className="block text-sm text-peach/80">SSDI Recipient & Designer</span>
+                     </div>
+                  </footer>
+                </blockquote>
             </div>
         </div>
 
         {/* Right Side - Form OR Setup Guide */}
-        <div className="w-full md:w-1/2 flex items-center justify-center p-6 md:p-12 bg-blush">
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 xl:p-24 bg-blush">
           <div className="w-full max-w-md fade-in-up">
             
             {!isConfigured ? (
@@ -173,11 +189,16 @@ const Auth: React.FC = () => {
                /* LOGIN FORM STATE */
                <>
                 <div className="mb-10">
-                  <h1 className="text-4xl font-serif text-burgundy mb-3">
-                    {isLogin ? 'Welcome back' : 'Create an account'}
+                  <span className="text-coral font-bold tracking-widest text-xs uppercase mb-3 block animate-fade-in-up">
+                    {isLogin ? 'Welcome Back' : 'Start Your Journey'}
+                  </span>
+                  <h1 className="text-4xl md:text-5xl font-serif text-burgundy mb-4 animate-fade-in-up delay-100">
+                    {isLogin ? 'Good to see you again.' : 'Peace of mind starts here.'}
                   </h1>
-                  <p className="text-slate font-light text-lg">
-                    {isLogin ? 'Sign in to access your saved history.' : 'Start tracking your work journey securely.'}
+                  <p className="text-slate text-lg font-light leading-relaxed animate-fade-in-up delay-200">
+                    {isLogin 
+                      ? 'Log in to continue tracking your work months and protecting your benefits.' 
+                      : 'Create a secure account to sync your history across devices and never lose your progress.'}
                   </p>
                 </div>
 
@@ -194,7 +215,7 @@ const Auth: React.FC = () => {
                   </div>
                 )}
 
-                <form className="space-y-6" onSubmit={handleAuth}>
+                <form className="space-y-6 animate-fade-in-up delay-300" onSubmit={handleAuth}>
                   <Input 
                     label="Email" 
                     type="email" 
@@ -249,12 +270,12 @@ const Auth: React.FC = () => {
                     </div>
                   )}
 
-                  <Button fullWidth type="submit" disabled={loading} className="py-4 text-lg shadow-lg shadow-coral/20">
+                  <Button fullWidth type="submit" disabled={loading} className="py-4 text-lg shadow-lg shadow-coral/20 hover:shadow-xl hover:shadow-coral/30">
                     {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')}
                   </Button>
                 </form>
 
-                <div className="mt-8 text-center">
+                <div className="mt-10 text-center animate-fade-in-up delay-300">
                   <span className="text-slate font-light">
                     {isLogin ? "Don't have an account? " : "Already have an account? "}
                   </span>
