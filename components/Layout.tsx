@@ -68,6 +68,8 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="inline-flex items-center justify-center p-2 text-burgundy focus:outline-none"
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={isMobileMenuOpen}
               >
                 {!isMobileMenuOpen ? (
                   <svg className="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

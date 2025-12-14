@@ -26,6 +26,7 @@
             fontFamily: {
               sans: ['Inter', 'sans-serif'],
               serif: ['Fraunces', 'serif'],
+              script: ['novantique-display', 'novantique', 'serif'],
             },
             boxShadow: {
               'soft': '0 4px 40px rgba(74, 21, 32, 0.04)',
@@ -57,10 +58,10 @@
       }
 
       /* GLOBAL ITALIC OVERRIDE */
-      /* This forces all italics to use Novantique */
+      /* This forces all italics to use the custom Novantique font from Adobe Typekit */
       em, i, .italic {
         font-family: "novantique-display", "novantique", serif;
-        font-weight: 300; /* Light */
+        font-weight: 400; 
         font-style: italic;
       }
       

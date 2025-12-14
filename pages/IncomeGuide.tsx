@@ -13,7 +13,7 @@ const IncomeGuide: React.FC = () => {
           <span className="text-coral font-bold tracking-widest text-xs uppercase mb-4 block">Educational Resource</span>
           {/* Updated H1 to match Home page typography */}
           <h1 className="text-6xl md:text-8xl font-serif font-light text-burgundy mb-8 tracking-tight leading-[1.1] fade-in-up">
-            The Art of <span className="italic text-coral">Reporting</span>
+            The Art of <span className="font-script italic text-coral">Reporting</span>
           </h1>
           <p className="text-xl text-slate font-light leading-relaxed fade-in-up delay-100">
             Social Security math is unique. To protect your benefits, you need to understand the difference between what lands in your bank account and what the SSA actually counts.

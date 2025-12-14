@@ -39,7 +39,11 @@ const IncomeChart: React.FC<IncomeChartProps> = ({ entries }) => {
   const sgaY = getY(THRESHOLDS_2025.sga);
 
   return (
-    <div className="w-full h-[350px] select-none relative">
+    <div 
+      className="w-full h-[350px] select-none relative"
+      role="img"
+      aria-label="Bar chart showing monthly income history. Dashed lines indicate TWP and SGA thresholds."
+    >
        <div className="w-full h-full">
          <svg 
             width="100%" 
@@ -47,6 +51,7 @@ const IncomeChart: React.FC<IncomeChartProps> = ({ entries }) => {
             viewBox={`0 0 ${viewboxWidth} ${height}`} 
             preserveAspectRatio="none" 
             className="overflow-visible"
+            aria-hidden="true"
          >
             {/* Background Grid Lines (Optional - e.g. every $1000) */}
             {[...Array(Math.floor(chartMaxY / 1000) + 1)].map((_, i) => {
@@ -155,6 +160,7 @@ const IncomeChart: React.FC<IncomeChartProps> = ({ entries }) => {
                     top: getY(data[hoveredIndex].income) - 16,
                     minWidth: '120px'
                 }}
+                aria-hidden="true"
              >
                  <div className="text-center">
                      <p className="text-[10px] text-slate uppercase font-bold tracking-wider mb-1">

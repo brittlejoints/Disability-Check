@@ -18,8 +18,11 @@ const Learn: React.FC = () => {
       <div className="max-w-4xl mx-auto px-4 py-24 space-y-32">
         {/* Phase 1 */}
         <section className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start fade-in-up">
-          <div className="md:col-span-3 text-coral font-serif text-8xl md:text-9xl opacity-20 font-bold leading-none -mt-4">
-            01
+          <div className="md:col-span-3 relative select-none">
+            <span className="block text-coral font-bold text-sm uppercase tracking-[0.2em] opacity-80 pl-2 mb-[-10px]">Phase</span>
+            <div className="text-coral font-serif text-8xl md:text-9xl opacity-20 font-bold leading-none">
+              01
+            </div>
           </div>
           <div className="md:col-span-9">
             <h2 className="text-4xl font-serif text-burgundy mb-6">Trial Work Period (TWP)</h2>
@@ -50,8 +53,11 @@ const Learn: React.FC = () => {
 
         {/* Phase 2 */}
         <section className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start fade-in-up">
-          <div className="md:col-span-3 text-epeBlue font-serif text-8xl md:text-9xl opacity-20 font-bold leading-none -mt-4">
-            02
+          <div className="md:col-span-3 relative select-none">
+            <span className="block text-epeBlue font-bold text-sm uppercase tracking-[0.2em] opacity-80 pl-2 mb-[-10px]">Phase</span>
+            <div className="text-epeBlue font-serif text-8xl md:text-9xl opacity-20 font-bold leading-none">
+              02
+            </div>
           </div>
           <div className="md:col-span-9">
             <h2 className="text-4xl font-serif text-burgundy mb-6">Extended Period of Eligibility (EPE)</h2>
@@ -78,8 +84,11 @@ const Learn: React.FC = () => {
 
         {/* Phase 3 */}
         <section className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start fade-in-up">
-          <div className="md:col-span-3 text-charcoal font-serif text-8xl md:text-9xl opacity-10 font-bold leading-none -mt-4">
-            03
+          <div className="md:col-span-3 relative select-none">
+            <span className="block text-charcoal font-bold text-sm uppercase tracking-[0.2em] opacity-60 pl-2 mb-[-10px]">Phase</span>
+            <div className="text-charcoal font-serif text-8xl md:text-9xl opacity-10 font-bold leading-none">
+              03
+            </div>
           </div>
           <div className="md:col-span-9">
             <h2 className="text-4xl font-serif text-burgundy mb-6">Post-Eligibility</h2>

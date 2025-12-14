@@ -78,10 +78,23 @@ const Dashboard: React.FC = () => {
 
   // Handle Save
   const saveEntry = async (newEntry: WorkEntry) => {
+    // 1. Optimistic Update (Update UI immediately)
+    setEntries(prev => {
+        const updated = [...prev, newEntry];
+        // If guest mode, sync to LS immediately
+        if (!user || !supabase) {
+             localStorage.setItem('disability_check_entries', JSON.stringify(updated));
+        }
+        return updated;
+    });
+    
+    // Clear inputs immediately
+    setMonth('');
+    setIncome('');
+    setNote('');
+
+    // 2. Cloud Sync (if logged in)
     if (user && supabase) {
-      // Optimistic update
-      setEntries(prev => [...prev, newEntry]);
-      
       const { data, error } = await supabase
         .from('work_entries')
         .insert([{ 
@@ -95,16 +108,19 @@ const Dashboard: React.FC = () => {
       
       if (error) {
         console.error('Save failed', error);
-        alert('Failed to save to cloud. Please check your connection.');
+        
+        // Revert the optimistic update
         setEntries(prev => prev.filter(e => e.id !== newEntry.id));
+        
+        // Show error and restore inputs
+        setFormError('Failed to save to cloud. Please check your connection.');
+        setMonth(newEntry.month);
+        setIncome(newEntry.income.toString());
+        setNote(newEntry.note || '');
       } else if (data) {
-        // Sync local ID with real DB ID
+        // Success: Update the temporary ID with the real UUID from Supabase
         setEntries(prev => prev.map(e => e.id === newEntry.id ? { ...e, id: data.id } : e));
       }
-    } else {
-      const updated = [...entries, newEntry];
-      setEntries(updated);
-      localStorage.setItem('disability_check_entries', JSON.stringify(updated));
     }
   };
 
@@ -187,9 +203,6 @@ const Dashboard: React.FC = () => {
     };
 
     saveEntry(newEntry);
-    setMonth('');
-    setIncome('');
-    setNote('');
   };
 
   // --- DEBUG / DEMO HELPER ---
@@ -294,6 +307,8 @@ const Dashboard: React.FC = () => {
         return (
             <div key={idx} className={`group relative ${opacity}`}>
                 <div 
+                    role="img"
+                    aria-label={title}
                     className={`w-8 h-8 md:w-10 md:h-10 rounded-full ${bgClass} flex items-center justify-center text-[10px] text-white font-bold transition-all duration-300 hover:scale-110 cursor-help ${animation}`}
                     title={title}
                     style={{ animationDelay: `${idx * 30}ms` }}
@@ -422,7 +437,9 @@ const Dashboard: React.FC = () => {
               ) : (
                 <>
                   <div 
+                    role="status"
                     aria-live="polite"
+                    aria-atomic="true"
                     className={`text-center py-6 rounded-2xl mb-8 transition-colors duration-500 ${getPhaseColor(status?.currentPhase || PhaseType.UNKNOWN)}`}
                   >
                     <span className="block text-xs font-bold uppercase tracking-widest opacity-70 mb-1">Status</span>
@@ -618,68 +635,72 @@ const Dashboard: React.FC = () => {
                      </div>
                 </div>
                 
-                {timelineView === 'current' ? (
-                    /* TWP 9-Month View */
-                    <div className="relative py-12 px-4 overflow-x-auto no-scrollbar">
-                         {status?.currentPhase === PhaseType.EPE || status?.currentPhase === PhaseType.POST_EPE ? (
-                             <div className="text-center py-10 text-slate fade-in-up">
-                                 <p className="mb-4 text-lg">Trial Work Period Completed!</p>
-                                 <Button onClick={() => setTimelineView('future')} variant="outline" className="text-sm">View EPE Outlook</Button>
-                             </div>
-                         ) : (
-                            <div className="flex gap-8 md:gap-12 min-w-max mx-auto px-4 justify-start md:justify-center">
-                                {/* Background Line */}
-                                <div className="absolute top-[88px] left-8 right-8 h-0.5 bg-taupe/20 -z-0 rounded-full" aria-hidden="true">
-                                   <div 
-                                      className="h-full bg-gradient-to-r from-coral to-terracotta transition-all duration-1000 ease-out rounded-full opacity-50"
-                                      style={{ width: `${(status?.twpMonthsUsed || 0) * 11}%` }} 
-                                   ></div>
+                <div aria-live="polite" aria-atomic="true">
+                    {timelineView === 'current' ? (
+                        /* TWP 9-Month View */
+                        <div 
+                            className="relative py-12 px-4 overflow-x-auto no-scrollbar"
+                        >
+                            {status?.currentPhase === PhaseType.EPE || status?.currentPhase === PhaseType.POST_EPE ? (
+                                <div className="text-center py-10 text-slate fade-in-up">
+                                    <p className="mb-4 text-lg">Trial Work Period Completed!</p>
+                                    <Button onClick={() => setTimelineView('future')} variant="outline" className="text-sm">View EPE Outlook</Button>
                                 </div>
+                            ) : (
+                                <div className="flex gap-8 md:gap-12 min-w-max mx-auto px-4 justify-start md:justify-center">
+                                    {/* Background Line */}
+                                    <div className="absolute top-[88px] left-8 right-8 h-0.5 bg-taupe/20 -z-0 rounded-full" aria-hidden="true">
+                                    <div 
+                                        className="h-full bg-gradient-to-r from-coral to-terracotta transition-all duration-1000 ease-out rounded-full opacity-50"
+                                        style={{ width: `${(status?.twpMonthsUsed || 0) * 11}%` }} 
+                                    ></div>
+                                    </div>
 
-                                {Array.from({ length: 9 }).map((_, idx) => {
-                                    const isUsed = idx < (status?.twpMonthsUsed || 0);
-                                    const isNext = idx === (status?.twpMonthsUsed || 0);
-                                    
-                                    // Stagger delay for entry animation
-                                    const delayStyle = { animationDelay: `${idx * 150}ms` };
-                                    
-                                    // Accessible label
-                                    const label = `Month ${idx+1}: ${isUsed ? 'Used' : 'Available'}`;
+                                    {Array.from({ length: 9 }).map((_, idx) => {
+                                        const isUsed = idx < (status?.twpMonthsUsed || 0);
+                                        const isNext = idx === (status?.twpMonthsUsed || 0);
+                                        
+                                        // Stagger delay for entry animation
+                                        const delayStyle = { animationDelay: `${idx * 150}ms` };
+                                        
+                                        // Accessible label
+                                        const label = `Month ${idx+1}: ${isUsed ? 'Used' : 'Available'}`;
 
-                                    return (
-                                        <div key={idx} className="flex flex-col items-center gap-6 relative z-10 group" aria-label={label} role="img">
-                                            <div 
-                                                style={delayStyle}
-                                                className={`
-                                                    w-14 h-14 rounded-full flex items-center justify-center text-xl font-serif relative overflow-hidden transition-all duration-500
-                                                    ${isUsed 
-                                                        ? 'text-white shadow-luxury animate-pop' 
-                                                        : 'bg-white border border-taupe/30 text-taupe'}
-                                                    ${isNext ? 'border-coral border-2 border-dashed shadow-soft' : ''}
-                                                `}
-                                            >
-                                                {/* Gradient Background Layer for used state */}
-                                                {isUsed && (
-                                                    <div className="absolute inset-0 bg-gradient-to-br from-coral to-terracotta opacity-100" />
-                                                )}
+                                        return (
+                                            <div key={idx} className="flex flex-col items-center gap-6 relative z-10 group" aria-label={label} role="img">
+                                                <div 
+                                                    style={delayStyle}
+                                                    className={`
+                                                        w-14 h-14 rounded-full flex items-center justify-center text-xl font-serif relative overflow-hidden transition-all duration-500
+                                                        ${isUsed 
+                                                            ? 'text-white shadow-luxury animate-pop' 
+                                                            : 'bg-white border border-taupe/30 text-taupe'}
+                                                        ${isNext ? 'border-coral border-2 border-dashed shadow-soft' : ''}
+                                                    `}
+                                                >
+                                                    {/* Gradient Background Layer for used state */}
+                                                    {isUsed && (
+                                                        <div className="absolute inset-0 bg-gradient-to-br from-coral to-terracotta opacity-100" />
+                                                    )}
+                                                    
+                                                    {/* Number */}
+                                                    <span className="relative z-10">{idx + 1}</span>
+                                                </div>
                                                 
-                                                {/* Number */}
-                                                <span className="relative z-10">{idx + 1}</span>
+                                                {/* Label */}
+                                                <span className={`text-[10px] uppercase tracking-wider font-bold transition-colors duration-300 ${isUsed ? 'text-coral' : 'text-slate/60'}`}>
+                                                    Month {idx + 1}
+                                                </span>
                                             </div>
-                                            
-                                            {/* Label */}
-                                            <span className={`text-[10px] uppercase tracking-wider font-bold transition-colors duration-300 ${isUsed ? 'text-coral' : 'text-slate/60'}`}>
-                                                Month {idx + 1}
-                                            </span>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                         )}
-                    </div>
-                ) : (
-                    renderEpeGrid()
-                )}
+                                        )
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        renderEpeGrid()
+                    )}
+                </div>
              </Card>
 
              {/* 4. Detailed History Table */}
