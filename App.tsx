@@ -8,6 +8,7 @@ import Auth from './pages/Auth';
 import Onboarding from './pages/Onboarding';
 import IncomeGuide from './pages/IncomeGuide';
 import ScrollToTop from './components/ScrollToTop';
+import CustomCursor from './components/CustomCursor';
 import { AuthProvider } from './contexts/AuthContext';
 
 // Helper component to scroll to top on route change
@@ -18,6 +19,7 @@ const ScrollToTopHelper = () => {
 const App: React.FC = () => {
   return (
     <AuthProvider>
+      <CustomCursor />
       <Router>
         <ScrollToTopHelper />
         <Routes>
