@@ -639,7 +639,10 @@ const Dashboard: React.FC = () => {
                     {timelineView === 'current' ? (
                         /* TWP 9-Month View */
                         <div 
-                            className="relative py-12 px-4 overflow-x-auto no-scrollbar"
+                            className="relative py-12 px-4 overflow-x-auto no-scrollbar outline-none focus:ring-2 focus:ring-coral focus:ring-offset-2 rounded-xl"
+                            tabIndex={0}
+                            role="region"
+                            aria-label="Trial Work Period Timeline"
                         >
                             {status?.currentPhase === PhaseType.EPE || status?.currentPhase === PhaseType.POST_EPE ? (
                                 <div className="text-center py-10 text-slate fade-in-up">
@@ -705,16 +708,67 @@ const Dashboard: React.FC = () => {
 
              {/* 4. Detailed History Table */}
              <Card variant="glass" title="Work History Log">
+                {/* NEW LEGEND START */}
+                <div className="mb-8 p-6 bg-white/60 rounded-2xl border border-taupe/10">
+                    <div className="flex items-center gap-2 mb-4 opacity-80">
+                         <svg className="w-5 h-5 text-burgundy" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                         <h4 className="text-xs font-bold text-burgundy uppercase tracking-widest">Understanding Your Status</h4>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {/* Paid */}
+                        <div className="space-y-2">
+                             <div className="flex items-center gap-2 text-successGreen">
+                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                                 <span className="font-bold text-sm">Check Received</span>
+                             </div>
+                             <p className="text-xs text-slate font-light leading-relaxed">
+                                 Safe. Earnings are below SGA ({formatCurrency(THRESHOLDS_2025.sga)}) OR you are in your Trial Work Period.
+                             </p>
+                        </div>
+                        {/* Grace */}
+                        <div className="space-y-2">
+                             <div className="flex items-center gap-2 text-blue-600">
+                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                 <span className="font-bold text-sm">Grace Period</span>
+                             </div>
+                             <p className="text-xs text-slate font-light leading-relaxed">
+                                 Protected. A 3-month safety net after TWP ends. You get paid even if you earn over the limit.
+                             </p>
+                        </div>
+                        {/* Suspended */}
+                        <div className="space-y-2">
+                             <div className="flex items-center gap-2 text-warningOrange">
+                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                 <span className="font-bold text-sm">Suspended</span>
+                             </div>
+                             <p className="text-xs text-slate font-light leading-relaxed">
+                                 No Check. Earnings exceeded SGA ({formatCurrency(THRESHOLDS_2025.sga)}) during the Extended Period (EPE).
+                             </p>
+                        </div>
+                        {/* Terminated */}
+                        <div className="space-y-2">
+                             <div className="flex items-center gap-2 text-red-600">
+                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                 <span className="font-bold text-sm">Terminated</span>
+                             </div>
+                             <p className="text-xs text-slate font-light leading-relaxed">
+                                 Benefits Stopped. The EPE has ended and earnings remain high.
+                             </p>
+                        </div>
+                    </div>
+                </div>
+
                 {status?.entries.length === 0 ? (
                     <p className="text-slate font-light italic">No entries yet.</p>
                 ) : (
                     <div className="overflow-hidden">
-                        <div className="space-y-3">
+                        <div className="space-y-3" role="list">
                            {status?.entries.map((entry, idx) => (
                                <div 
                                  key={entry.id} 
                                  className="group flex flex-col md:flex-row md:items-center justify-between p-5 bg-white/40 hover:bg-white rounded-2xl transition-all duration-300 gap-4 border border-transparent hover:shadow-soft hover:scale-[1.01]"
                                  style={{ animationDelay: `${idx * 50}ms` }}
+                                 role="listitem"
                                >
                                    <div className="flex items-center gap-4">
                                        <div className="flex flex-col min-w-[140px]">

@@ -179,6 +179,32 @@ const IncomeChart: React.FC<IncomeChartProps> = ({ entries }) => {
              </div>
          )}
        </div>
+
+       {/* Screen Reader Only Table for Accessibility */}
+       <div className="sr-only">
+          <h3>Income Data Table</h3>
+          <table>
+             <thead>
+                <tr>
+                   <th>Month</th>
+                   <th>Income</th>
+                   <th>Status</th>
+                </tr>
+             </thead>
+             <tbody>
+                {data.map(entry => (
+                   <tr key={entry.id}>
+                      <td>{formatDateReadable(entry.month)}</td>
+                      <td>{formatCurrency(entry.income)}</td>
+                      <td>
+                        {entry.income > THRESHOLDS_2025.sga ? 'Above SGA Limit' : 
+                         entry.income > THRESHOLDS_2025.twp ? 'Trial Work Period Service Month' : 'Below Thresholds'}
+                      </td>
+                   </tr>
+                ))}
+             </tbody>
+          </table>
+       </div>
     </div>
   );
 };

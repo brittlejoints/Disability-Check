@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Button from './Button';
 import Input from './Input';
 import { generateId, calculateAttributedIncome, formatDateReadable, formatCurrency } from '../utils/logic';
@@ -25,6 +25,26 @@ const IncomeCalculator: React.FC<IncomeCalculatorProps> = ({ targetMonth, onAppl
     { id: generateId(), amount: '', expenses: '', start: '', end: '' }
   ]);
   const [totalAttributed, setTotalAttributed] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Focus Management: Focus the modal container on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      containerRef.current?.focus();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Keyboard Support: Handle Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   // Recalculate whenever items or mode change
   useEffect(() => {
@@ -91,7 +111,11 @@ const IncomeCalculator: React.FC<IncomeCalculatorProps> = ({ targetMonth, onAppl
         aria-modal="true"
         aria-labelledby="calculator-title"
     >
-      <div className="bg-white rounded-3xl shadow-luxury w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div 
+        ref={containerRef}
+        tabIndex={-1}
+        className="bg-white rounded-3xl shadow-luxury w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh] outline-none"
+      >
         
         {/* Header */}
         <div className="p-6 md:p-8 bg-blush border-b border-taupe/10">

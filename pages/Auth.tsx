@@ -224,6 +224,7 @@ const Auth: React.FC = () => {
                     onChange={e => setEmail(e.target.value)}
                     required
                     className="bg-transparent"
+                    autoComplete="email"
                   />
                   <div className="space-y-1">
                     <div className="flex justify-between items-center mb-1">
@@ -247,6 +248,7 @@ const Auth: React.FC = () => {
                       onChange={e => setPassword(e.target.value)}
                       required
                       minLength={6}
+                      autoComplete={isLogin ? "current-password" : "new-password"}
                     />
                     {!isLogin && (
                         <p className="text-xs text-slate pl-1">Must be at least 6 characters</p>

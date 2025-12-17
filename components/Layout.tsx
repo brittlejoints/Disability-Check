@@ -18,6 +18,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Hide footer on specific pages for a cleaner "app-like" feel
   const hideFooter = ['/auth', '/onboarding'].includes(location.pathname);
 
+  // Organic blob style
+  const organicShape = { borderRadius: '45% 55% 70% 30% / 30% 30% 70% 70%' };
+
   return (
     <div className="min-h-screen flex flex-col font-sans bg-blush text-charcoal">
       <header className="absolute top-0 w-full z-50">
@@ -26,8 +29,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="flex items-center gap-3 group">
-                <div className="w-8 h-8 rounded-full bg-burgundy flex items-center justify-center text-white font-serif font-bold text-lg group-hover:bg-coral transition-colors duration-500">
-                  D
+                <div 
+                  className="w-10 h-10 bg-burgundy flex items-center justify-center text-white font-serif font-bold text-xl group-hover:bg-coral group-hover:rotate-180 transition-all duration-700 ease-in-out shadow-sm"
+                  style={organicShape}
+                >
+                  <span className="group-hover:-rotate-180 transition-transform duration-700">D</span>
                 </div>
                 <span className="font-serif text-xl font-bold text-burgundy tracking-tight group-hover:text-coral transition-colors duration-500">
                   Disability Check
@@ -122,7 +128,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
             <div>
               <div className="flex items-center gap-3 mb-6">
-                 <div className="w-6 h-6 rounded-full bg-burgundy flex items-center justify-center text-white font-serif font-bold text-xs">
+                 <div 
+                   className="w-8 h-8 bg-burgundy flex items-center justify-center text-white font-serif font-bold text-sm"
+                   style={organicShape}
+                 >
                     D
                   </div>
                 <span className="font-serif text-lg font-bold text-burgundy">Disability Check</span>
@@ -133,7 +142,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             </div>
             <div className="md:text-right">
                <div className="flex flex-col md:flex-row gap-6 md:justify-end text-sm text-slate mb-8">
-                  <a href="https://www.ssa.gov" target="_blank" rel="noreferrer" className="hover:text-coral transition-colors">SSA.gov</a>
+                  <a href="https://www.ssa.gov" target="_blank" rel="noopener noreferrer" className="hover:text-coral transition-colors">SSA.gov</a>
                   <Link to="/about" className="hover:text-coral transition-colors">About</Link>
                   <Link to="/learn" className="hover:text-coral transition-colors">Rules</Link>
                </div>
