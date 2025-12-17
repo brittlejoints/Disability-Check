@@ -1,8 +1,10 @@
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import Card from '../components/Card';
 import { supabase, isSupabaseConfigured } from '../utils/supabase';
 
 const Auth: React.FC = () => {
@@ -128,8 +130,9 @@ const Auth: React.FC = () => {
               alt="Calm office workspace with plants and light" 
               className="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-overlay"
             />
-            {/* Gradient Overlay for Text Readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-burgundy via-burgundy/40 to-transparent"></div>
+            {/* Enhanced Gradient Overlay for Text Readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-burgundy via-burgundy/60 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-burgundy/30 to-transparent"></div>
             
             <div className="relative z-10 p-16 flex flex-col justify-end h-full text-white">
                 <blockquote className="mb-12 max-w-lg">
@@ -154,11 +157,11 @@ const Auth: React.FC = () => {
 
         {/* Right Side - Form OR Setup Guide */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 xl:p-24 bg-blush">
-          <div className="w-full max-w-md fade-in-up">
+          <Card variant="glass" className="w-full max-w-md fade-in-up border-none overflow-visible">
             
             {!isConfigured ? (
                /* SETUP GUIDE STATE */
-               <div className="bg-white p-8 rounded-3xl shadow-soft border border-taupe/20 text-center">
+               <div className="text-center">
                   <div className="w-16 h-16 bg-taupe/20 rounded-full flex items-center justify-center mx-auto mb-6 text-2xl">
                     🛠️
                   </div>
@@ -167,7 +170,7 @@ const Auth: React.FC = () => {
                     To enable Login and Cloud Sync, you need to add your Supabase API keys to the code.
                   </p>
                   
-                  <div className="text-left bg-gray-50 p-4 rounded-xl border border-taupe/10 mb-8 text-sm text-slate space-y-3">
+                  <div className="text-left bg-gray-50/50 p-4 rounded-xl border border-taupe/10 mb-8 text-sm text-slate space-y-3">
                     <p><strong>1.</strong> Go to <a href="https://database.new" target="_blank" rel="noreferrer" className="text-coral underline">database.new</a></p>
                     <p><strong>2.</strong> Open Project Settings → API</p>
                     <p><strong>3.</strong> Copy URL & Anon Key</p>
@@ -290,8 +293,7 @@ const Auth: React.FC = () => {
                 </div>
                </>
             )}
-
-          </div>
+          </Card>
         </div>
       </div>
     </Layout>
