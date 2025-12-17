@@ -1,29 +1,27 @@
 import React, { useMemo, useState } from 'react';
-import { WorkEntry } from '../types';
+import { AnalyzedEntry } from '../types';
 import { THRESHOLDS_2025 } from '../constants';
 import { formatCurrency, formatDateReadable, parseDate } from '../utils/logic';
 
 interface IncomeChartProps {
-  entries: WorkEntry[];
+  entries: AnalyzedEntry[];
 }
 
 const IncomeChart: React.FC<IncomeChartProps> = ({ entries }) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  // Sort entries chronologically
+  // Sort entries chronologically for display
   const data = useMemo(() => {
     return [...entries].sort((a, b) => a.month.localeCompare(b.month));
   }, [entries]);
 
   if (data.length === 0) return null;
 
-  // Chart Dimensions & Configuration
+  // Chart Dimensions
   const height = 300;
   const padding = { top: 40, right: 20, bottom: 40, left: 0 };
   const viewboxWidth = 1000;
   
-  // Determine scales
-  // Max Y is either the highest income or the SGA limit + buffer, rounded up to nearest 100
   const highestIncome = Math.max(...data.map(e => e.income));
   const maxIncomeDomain = Math.max(highestIncome, THRESHOLDS_2025.sga * 1.2);
   const chartMaxY = Math.ceil(maxIncomeDomain / 500) * 500;
@@ -34,7 +32,6 @@ const IncomeChart: React.FC<IncomeChartProps> = ({ entries }) => {
     return height - padding.bottom - (ratio * drawingHeight);
   };
 
-  // Threshold Y positions
   const twpY = getY(THRESHOLDS_2025.twp);
   const sgaY = getY(THRESHOLDS_2025.sga);
 
@@ -42,7 +39,7 @@ const IncomeChart: React.FC<IncomeChartProps> = ({ entries }) => {
     <div 
       className="w-full h-[350px] select-none relative"
       role="img"
-      aria-label="Bar chart showing monthly income history. Dashed lines indicate TWP and SGA thresholds."
+      aria-label="Bar chart showing monthly income and benefit thresholds."
     >
        <div className="w-full h-full">
          <svg 
@@ -53,7 +50,7 @@ const IncomeChart: React.FC<IncomeChartProps> = ({ entries }) => {
             className="overflow-visible"
             aria-hidden="true"
          >
-            {/* Background Grid Lines (Optional - e.g. every $1000) */}
+            {/* Grid */}
             {[...Array(Math.floor(chartMaxY / 1000) + 1)].map((_, i) => {
                  const yVal = i * 1000;
                  if (yVal === 0) return null;
@@ -66,84 +63,34 @@ const IncomeChart: React.FC<IncomeChartProps> = ({ entries }) => {
                  )
             })}
             
-            {/* --- THRESHOLD LINES --- */}
-            
-            {/* TWP Line */}
-            <line 
-                x1="0" y1={twpY} x2={viewboxWidth} y2={twpY} 
-                stroke="#E8A573" strokeWidth="2" strokeDasharray="6,4" opacity="0.8" 
-            />
-            <text x="10" y={twpY - 8} fill="#E8A573" fontSize="12" fontWeight="bold">
-                TWP ({formatCurrency(THRESHOLDS_2025.twp)})
-            </text>
+            {/* Thresholds */}
+            <line x1="0" y1={twpY} x2={viewboxWidth} y2={twpY} stroke="#E8A573" strokeWidth="1.5" strokeDasharray="6,4" opacity="0.6" />
+            <line x1="0" y1={sgaY} x2={viewboxWidth} y2={sgaY} stroke="#C95233" strokeWidth="1.5" strokeDasharray="6,4" opacity="0.6" />
 
-            {/* SGA Line */}
-            <line 
-                x1="0" y1={sgaY} x2={viewboxWidth} y2={sgaY} 
-                stroke="#C95233" strokeWidth="2" strokeDasharray="6,4" opacity="0.8" 
-            />
-            <text x={viewboxWidth - 10} y={sgaY - 8} textAnchor="end" fill="#C95233" fontSize="12" fontWeight="bold">
-                SGA ({formatCurrency(THRESHOLDS_2025.sga)})
-            </text>
-
-
-            {/* --- BARS --- */}
+            {/* Bars */}
             {data.map((entry, i) => {
                 const slotWidth = viewboxWidth / data.length;
                 const barWidth = Math.min(60, slotWidth * 0.65);
                 const x = (slotWidth * i) + (slotWidth - barWidth) / 2;
                 const y = getY(entry.income);
-                const barHeight = Math.max(height - padding.bottom - y, 4); // Min height 4px
+                const barHeight = Math.max(height - padding.bottom - y, 4);
                 
-                // Color Logic
-                const isSga = entry.income > THRESHOLDS_2025.sga;
-                const isTwp = entry.income > THRESHOLDS_2025.twp;
+                let barColor = "#6B9E78"; // Default: Paid/Safe
+                if (entry.income > THRESHOLDS_2025.sga) barColor = "#C95233";
+                else if (entry.income > THRESHOLDS_2025.twp) barColor = "#E67E50";
                 
-                let barColor = "#6B9E78"; // successGreen (Below TWP)
-                if (isSga) barColor = "#C95233"; // terracotta (Above SGA)
-                else if (isTwp) barColor = "#E67E50"; // coral (Above TWP)
-                
-                // Label Logic (Show mostly, hide if crowded)
                 const showLabel = data.length <= 12 || i % Math.ceil(data.length / 12) === 0;
 
                 return (
                     <g key={entry.id} 
                        onMouseEnter={() => setHoveredIndex(i)}
                        onMouseLeave={() => setHoveredIndex(null)}
-                       className="group"
                     >
-                        {/* Hover Highlight Area (invisible but captures mouse) */}
-                        <rect 
-                            x={slotWidth * i} 
-                            y={padding.top} 
-                            width={slotWidth} 
-                            height={height - padding.top - padding.bottom} 
-                            fill="transparent" 
-                        />
-                        
-                        {/* The Bar */}
-                        <rect 
-                            x={x} 
-                            y={y} 
-                            width={barWidth} 
-                            height={barHeight} 
-                            fill={barColor} 
-                            rx="4"
-                            className="transition-opacity duration-200 hover:opacity-80"
-                        />
-
-                        {/* Month Label */}
+                        <rect x={slotWidth * i} y={padding.top} width={slotWidth} height={height - padding.top - padding.bottom} fill="transparent" />
+                        <rect x={x} y={y} width={barWidth} height={barHeight} fill={barColor} rx="6" className="transition-all duration-300 hover:brightness-95" />
                         {showLabel && (
-                            <text 
-                                x={x + barWidth/2} 
-                                y={height - 15} 
-                                textAnchor="middle" 
-                                fill="#6B5B5F" 
-                                fontSize="11"
-                                fontWeight="500"
-                                className="uppercase tracking-wide"
-                            >
-                                {parseDate(entry.month).toLocaleDateString('en-US', { month: 'short', year: '2-digit' })}
+                            <text x={x + barWidth/2} y={height - 15} textAnchor="middle" fill="#6B5B5F" fontSize="10" fontWeight="600" className="uppercase tracking-widest opacity-60">
+                                {parseDate(entry.month).toLocaleDateString('en-US', { month: 'short' })}
                             </text>
                         )}
                     </g>
@@ -151,59 +98,37 @@ const IncomeChart: React.FC<IncomeChartProps> = ({ entries }) => {
             })}
          </svg>
          
-         {/* --- TOOLTIP --- */}
+         {/* Enhanced Tooltip */}
          {hoveredIndex !== null && data[hoveredIndex] && (
              <div 
-                className="absolute pointer-events-none z-20 bg-white/95 backdrop-blur shadow-luxury rounded-xl p-3 border border-taupe/20 transform -translate-x-1/2 -translate-y-full transition-all duration-75"
+                className="absolute pointer-events-none z-50 bg-white/95 backdrop-blur shadow-luxury rounded-2xl p-5 border border-taupe/10 transform -translate-x-1/2 -translate-y-full transition-all duration-150 animate-pop"
                 style={{
                     left: `${((hoveredIndex + 0.5) / data.length) * 100}%`,
-                    top: getY(data[hoveredIndex].income) - 16,
-                    minWidth: '120px'
+                    top: getY(data[hoveredIndex].income) - 20,
+                    minWidth: '160px'
                 }}
-                aria-hidden="true"
              >
-                 <div className="text-center">
-                     <p className="text-[10px] text-slate uppercase font-bold tracking-wider mb-1">
+                 <div className="flex flex-col gap-1">
+                     <span className="text-[10px] font-bold text-slate uppercase tracking-widest border-b border-taupe/10 pb-2 mb-2">
                         {formatDateReadable(data[hoveredIndex].month)}
-                     </p>
-                     <p className="text-xl font-serif text-burgundy font-medium">
+                     </span>
+                     <span className="text-2xl font-serif text-burgundy">
                         {formatCurrency(data[hoveredIndex].income)}
-                     </p>
-                     <p className="text-[10px] text-slate/60 mt-1 italic">
-                        {data[hoveredIndex].income > THRESHOLDS_2025.sga ? 'Above SGA' : 
-                         data[hoveredIndex].income > THRESHOLDS_2025.twp ? 'TWP Month' : 'Below Limits'}
-                     </p>
+                     </span>
+                     <div className="flex items-center gap-2 mt-1">
+                        <div className={`w-2 h-2 rounded-full ${data[hoveredIndex].income > THRESHOLDS_2025.sga ? 'bg-red-500' : 'bg-successGreen'}`}></div>
+                        <span className="text-xs font-semibold text-charcoal">
+                            {data[hoveredIndex].benefitStatus}
+                        </span>
+                     </div>
+                     <span className="text-[9px] text-slate/60 italic uppercase tracking-tighter mt-1">
+                        {data[hoveredIndex].income > THRESHOLDS_2025.sga ? 'Above SGA Limit' : 
+                         data[hoveredIndex].income > THRESHOLDS_2025.twp ? 'TWP Service Month' : 'Below All Limits'}
+                     </span>
                  </div>
-                 {/* Little triangle arrow */}
-                 <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-2 h-2 bg-white border-r border-b border-taupe/20"></div>
+                 <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 rotate-45 w-3 h-3 bg-white border-r border-b border-taupe/10"></div>
              </div>
          )}
-       </div>
-
-       {/* Screen Reader Only Table for Accessibility */}
-       <div className="sr-only">
-          <h3>Income Data Table</h3>
-          <table>
-             <thead>
-                <tr>
-                   <th>Month</th>
-                   <th>Income</th>
-                   <th>Status</th>
-                </tr>
-             </thead>
-             <tbody>
-                {data.map(entry => (
-                   <tr key={entry.id}>
-                      <td>{formatDateReadable(entry.month)}</td>
-                      <td>{formatCurrency(entry.income)}</td>
-                      <td>
-                        {entry.income > THRESHOLDS_2025.sga ? 'Above SGA Limit' : 
-                         entry.income > THRESHOLDS_2025.twp ? 'Trial Work Period Service Month' : 'Below Thresholds'}
-                      </td>
-                   </tr>
-                ))}
-             </tbody>
-          </table>
        </div>
     </div>
   );

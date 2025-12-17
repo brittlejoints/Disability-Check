@@ -11,6 +11,7 @@ import { calculateStatus, formatCurrency, formatDateReadable, generateId, parseD
 import { THRESHOLDS_2025, EPE_DURATION } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../utils/supabase';
+import { Link } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
   // Auth State
@@ -26,6 +27,7 @@ const Dashboard: React.FC = () => {
   
   // UI State
   const [timelineView, setTimelineView] = useState<'current' | 'future'>('current');
+  const [showGuestWarning, setShowGuestWarning] = useState(false);
   
   // Delete Modal State
   const [idsToDelete, setIdsToDelete] = useState<string[]>([]);
@@ -60,6 +62,12 @@ const Dashboard: React.FC = () => {
             setEntries(JSON.parse(saved));
           } catch (e) { console.error(e); }
         }
+        
+        // Check if guest warning has been dismissed this session
+        const warningDismissed = sessionStorage.getItem('dc_guest_warning_dismissed');
+        if (!warningDismissed) {
+          setShowGuestWarning(true);
+        }
       }
       setIsLoadingData(false);
     };
@@ -77,6 +85,11 @@ const Dashboard: React.FC = () => {
         setTimelineView('future');
     }
   }, [entries]);
+
+  const dismissGuestWarning = () => {
+    setShowGuestWarning(false);
+    sessionStorage.setItem('dc_guest_warning_dismissed', 'true');
+  };
 
   // Handle Save
   const saveEntry = async (newEntry: WorkEntry) => {
@@ -203,31 +216,33 @@ const Dashboard: React.FC = () => {
 
   const renderStatusLegend = () => {
     const legendItems = [
-        { label: 'Paid', color: 'bg-successGreen', desc: 'Income < SGA' },
-        { label: 'Grace Period', color: 'bg-blue-400', desc: '3-Month Safety Net' },
-        { label: 'Suspended', color: 'bg-warningOrange', desc: 'Income > SGA' },
-        { label: 'Terminated', color: 'bg-red-500', desc: 'Benefits Stopped' },
-        { label: 'Trial Month', color: 'bg-coral', desc: 'TWP Usage' },
+        { label: 'Check Paid', color: 'bg-successGreen', desc: 'Earnings safe' },
+        { label: 'Grace Period', color: 'bg-blue-400', desc: 'Safety net active' },
+        { label: 'Suspended', color: 'bg-warningOrange', desc: 'Over SGA limit' },
+        { label: 'Terminated', color: 'bg-red-500', desc: 'Cutoff reached' },
+        { label: 'Trial Month', color: 'bg-coral', desc: 'Service month used' },
     ];
 
     return (
-        <div className="mt-8 pt-6 border-t border-taupe/10">
-            <h4 className="text-[10px] font-bold text-slate uppercase tracking-widest mb-4 opacity-60">Status Reference</h4>
-            <div className="flex flex-wrap gap-x-8 gap-y-4">
+        <Card variant="glass" className="mt-8" title="Status Key">
+            <div className="grid grid-cols-1 gap-6">
                 {legendItems.map((item) => (
-                    <div key={item.label} className="flex items-center gap-3">
+                    <div key={item.label} className="flex items-center gap-4">
                         <div 
-                            className={`w-3 h-3 ${item.color} shadow-sm`} 
+                            className={`w-4 h-4 ${item.color} shadow-sm flex-shrink-0`} 
                             style={organicShape}
                         />
-                        <div>
-                            <span className="block text-xs font-semibold text-burgundy leading-none mb-0.5">{item.label}</span>
-                            <span className="block text-[10px] text-slate/60 leading-none">{item.desc}</span>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-semibold text-burgundy leading-tight">{item.label}</span>
+                            <span className="text-[11px] text-slate/70 leading-tight uppercase tracking-wider">{item.desc}</span>
                         </div>
                     </div>
                 ))}
             </div>
-        </div>
+            <p className="mt-6 text-[10px] text-slate/50 font-light italic border-t border-taupe/10 pt-4">
+                Consistent coloring across Timeline, Charts, and Logs.
+            </p>
+        </Card>
     );
   };
 
@@ -362,6 +377,37 @@ const Dashboard: React.FC = () => {
     <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         
+        {/* Guest Warning Modal */}
+        {showGuestWarning && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-burgundy/10 backdrop-blur-md animate-fade-in-up">
+            <div className="bg-white rounded-[2.5rem] shadow-luxury max-w-lg w-full p-10 text-center border border-taupe/10 relative">
+               <div 
+                 className="w-16 h-16 bg-warningOrange/10 text-warningOrange flex items-center justify-center mx-auto mb-8"
+                 style={organicShape}
+               >
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+               </div>
+               <h3 className="text-3xl font-serif text-burgundy mb-4">Guest Mode Warning</h3>
+               <p className="text-slate font-light leading-relaxed mb-10">
+                 You are currently using <i>Guest Mode</i>. Your data is stored locally on this device. If you clear your browser cache or use a different device, your history will be permanently lost.
+               </p>
+               <div className="flex flex-col gap-4">
+                  <Link to="/auth" className="w-full">
+                    <Button fullWidth className="bg-burgundy">Create Account to Sync</Button>
+                  </Link>
+                  <button 
+                    onClick={dismissGuestWarning}
+                    className="text-sm text-slate hover:text-burgundy transition-colors underline underline-offset-4"
+                  >
+                    I understand, continue as guest
+                  </button>
+               </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 fade-in-up gap-4">
             <div>
                 <h1 className="text-4xl md:text-5xl font-serif text-burgundy mb-2">Your Dashboard</h1>
@@ -378,111 +424,116 @@ const Dashboard: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           
-          <div className="space-y-8 lg:col-span-1 fade-in-up delay-100">
-            
-            <Card variant="glass">
-              <h2 className="text-lg font-serif text-burgundy mb-6">Current Phase</h2>
-              
-              {entries.length === 0 ? (
-                <div className="text-center py-8">
-                    <p className="text-slate mb-4 font-light">No work history found.</p>
-                </div>
-              ) : (
-                <>
-                  <div 
-                    role="status"
-                    aria-live="polite"
-                    className={`text-center py-6 rounded-2xl mb-8 transition-colors duration-500 ${getPhaseColor(status?.currentPhase || PhaseType.UNKNOWN)}`}
-                  >
-                    <span className="block text-xs font-bold uppercase tracking-widest opacity-70 mb-1">Status</span>
-                    <span className="text-2xl font-serif text-burgundy">{status?.currentPhase}</span>
-                  </div>
-
-                  {status?.currentPhase === PhaseType.TWP && (
-                     <div className="space-y-6">
-                        <div className="flex justify-between text-sm font-medium">
-                            <span className="text-slate">TWP Progress</span>
-                            <span className="text-coral">{status.twpMonthsUsed} / 9</span>
-                        </div>
-                        <div className="w-full bg-peach/30 rounded-full h-1.5 overflow-hidden">
-                            <div 
-                                className="bg-gradient-to-r from-coral to-terracotta h-1.5 rounded-full transition-all duration-1000 ease-out"
-                                style={{ width: `${(status.twpMonthsUsed / 9) * 100}%` }}
-                            ></div>
-                        </div>
-                        <p className="text-sm text-slate font-light">
-                           You have used <strong>{status.twpMonthsUsed}</strong> of your 9 trial work months.
-                        </p>
-                     </div>
-                  )}
-
-                  {(status?.currentPhase === PhaseType.EPE || status?.currentPhase === PhaseType.POST_EPE) && (
-                      <div className="space-y-4 text-sm font-light">
-                           <p className="text-charcoal leading-relaxed">
-                               You are in the 36-month extended eligibility period. Your check depends on your monthly income relative to SGA.
-                           </p>
-                      </div>
-                  )}
-                </>
-              )}
-            </Card>
-
-            <Card variant="glass" title="Add Work Month">
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <Input 
-                  label="Month" 
-                  type="month" 
-                  value={month} 
-                  onChange={(e) => setMonth(e.target.value)}
-                  required
-                />
+          <div className="lg:col-span-1 fade-in-up delay-100">
+            {/* Sticky Sidebar */}
+            <div className="lg:sticky lg:top-28 space-y-8">
+                <Card variant="glass">
+                <h2 className="text-lg font-serif text-burgundy mb-6">Current Phase</h2>
                 
-                <div className="relative">
-                  <label htmlFor="gross-income" className="text-sm font-semibold text-burgundy block mb-1.5">
-                    Gross Income
-                  </label>
-                  <input
-                    id="gross-income"
-                    className="w-full px-4 py-3 rounded-xl border bg-white text-charcoal placeholder-slate/50 focus:outline-none focus:ring-2 focus:ring-coral border-taupe"
-                    type="number" 
-                    placeholder="0.00" 
-                    min="0"
-                    step="0.01"
-                    value={income}
-                    onChange={(e) => setIncome(e.target.value)}
-                    required
-                  />
-                </div>
-
-                 <Input 
-                    label="Notes" 
-                    type="text" 
-                    placeholder="e.g. Part-time job" 
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                />
-                
-                {formError && (
-                    <div role="alert" className="p-4 bg-red-50 text-red-900 border-l-4 border-red-600 rounded-r-xl text-sm">
-                        {formError}
+                {entries.length === 0 ? (
+                    <div className="text-center py-8">
+                        <p className="text-slate mb-4 font-light">No work history found.</p>
                     </div>
-                )}
-                
-                <div className={`p-4 rounded-xl text-sm border-l-4 ${currentForecast.type === 'warning' ? 'bg-orange-50 text-orange-900 border-warningOrange' : currentForecast.type === 'success' ? 'bg-green-50 text-green-900 border-successGreen' : 'bg-slate/5 text-slate-800 border-slate/30'}`}>
-                    <strong className="block mb-1 text-xs uppercase tracking-wider opacity-80">Forecast</strong>
-                    {currentForecast.message}
-                </div>
+                ) : (
+                    <>
+                    <div 
+                        role="status"
+                        aria-live="polite"
+                        className={`text-center py-6 rounded-2xl mb-8 transition-colors duration-500 ${getPhaseColor(status?.currentPhase || PhaseType.UNKNOWN)}`}
+                    >
+                        <span className="block text-xs font-bold uppercase tracking-widest opacity-70 mb-1">Status</span>
+                        <span className="text-2xl font-serif text-burgundy">{status?.currentPhase}</span>
+                    </div>
 
-                <Button type="submit" fullWidth className="bg-burgundy hover:bg-coral transition-all">Add Entry</Button>
-              </form>
-            </Card>
+                    {status?.currentPhase === PhaseType.TWP && (
+                        <div className="space-y-6">
+                            <div className="flex justify-between text-sm font-medium">
+                                <span className="text-slate">TWP Progress</span>
+                                <span className="text-coral">{status.twpMonthsUsed} / 9</span>
+                            </div>
+                            <div className="w-full bg-peach/30 rounded-full h-1.5 overflow-hidden">
+                                <div 
+                                    className="bg-gradient-to-r from-coral to-terracotta h-1.5 rounded-full transition-all duration-1000 ease-out"
+                                    style={{ width: `${(status.twpMonthsUsed / 9) * 100}%` }}
+                                ></div>
+                            </div>
+                            <p className="text-sm text-slate font-light">
+                            You have used <strong>{status.twpMonthsUsed}</strong> of your 9 trial work months.
+                            </p>
+                        </div>
+                    )}
+
+                    {(status?.currentPhase === PhaseType.EPE || status?.currentPhase === PhaseType.POST_EPE) && (
+                        <div className="space-y-4 text-sm font-light">
+                            <p className="text-charcoal leading-relaxed">
+                                You are in the 36-month extended eligibility period. Your check depends on your monthly income relative to SGA.
+                            </p>
+                        </div>
+                    )}
+                    </>
+                )}
+                </Card>
+
+                <Card variant="glass" title="Add Work Month">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <Input 
+                    label="Month" 
+                    type="month" 
+                    value={month} 
+                    onChange={(e) => setMonth(e.target.value)}
+                    required
+                    />
+                    
+                    <div className="relative">
+                    <label htmlFor="gross-income" className="text-sm font-semibold text-burgundy block mb-1.5">
+                        Gross Income
+                    </label>
+                    <input
+                        id="gross-income"
+                        className="w-full px-4 py-3 rounded-xl border bg-white text-charcoal placeholder-slate/50 focus:outline-none focus:ring-2 focus:ring-coral border-taupe"
+                        type="number" 
+                        placeholder="0.00" 
+                        min="0"
+                        step="0.01"
+                        value={income}
+                        onChange={(e) => setIncome(e.target.value)}
+                        required
+                    />
+                    </div>
+
+                    <Input 
+                        label="Notes" 
+                        type="text" 
+                        placeholder="e.g. Part-time job" 
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                    />
+                    
+                    {formError && (
+                        <div role="alert" className="p-4 bg-red-50 text-red-900 border-l-4 border-red-600 rounded-r-xl text-sm">
+                            {formError}
+                        </div>
+                    )}
+                    
+                    <div className={`p-4 rounded-xl text-sm border-l-4 ${currentForecast.type === 'warning' ? 'bg-orange-50 text-orange-900 border-warningOrange' : currentForecast.type === 'success' ? 'bg-green-50 text-green-900 border-successGreen' : 'bg-slate/5 text-slate-800 border-slate/30'}`}>
+                        <strong className="block mb-1 text-xs uppercase tracking-wider opacity-80">Forecast</strong>
+                        {currentForecast.message}
+                    </div>
+
+                    <Button type="submit" fullWidth className="bg-burgundy hover:bg-coral transition-all">Add Entry</Button>
+                </form>
+                </Card>
+
+                {/* Persistent Sidebar Legend */}
+                {renderStatusLegend()}
+            </div>
           </div>
 
           <div className="lg:col-span-2 space-y-8 fade-in-up delay-200">
             
-            {entries.length > 0 && (
+            {entries.length > 0 && status && (
               <Card variant="glass" title="Income Trends">
-                  <IncomeChart entries={entries} />
+                  <IncomeChart entries={status.entries} />
               </Card>
             )}
 
@@ -490,7 +541,7 @@ const Dashboard: React.FC = () => {
                 <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                      <div>
                         <h3 className="text-2xl font-serif text-burgundy mb-2">Timeline</h3>
-                        <p className="text-slate font-light text-sm">Track your progress through the benefit phases.</p>
+                        <p className="text-slate font-light text-sm">Visual tracking of your benefit phases.</p>
                      </div>
                      
                      <div className="flex p-1 bg-taupe/10 rounded-xl self-start">
@@ -532,8 +583,6 @@ const Dashboard: React.FC = () => {
                         renderEpeGrid()
                     )}
                 </div>
-
-                {renderStatusLegend()}
              </Card>
 
              <Card variant="glass" title="Work History Log">
@@ -559,7 +608,7 @@ const Dashboard: React.FC = () => {
                     <p className="text-slate font-light italic">No entries yet.</p>
                 ) : (
                     <div className="space-y-3" role="list">
-                        {status?.entries.map((entry, idx) => {
+                        {status?.entries.map((entry) => {
                             const isSelected = selectedIds.includes(entry.id);
                             return (
                                 <div 
