@@ -27,12 +27,12 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const blobShape = '48% 52% 65% 35% / 38% 38% 62% 62%';
     
     return (
-      <div className="flex items-center gap-3 group">
+      <div className="flex items-center gap-2 group">
         <div className="relative">
-          {/* The Blob Container */}
+          {/* The Blob Container - Scaled down for elegance */}
           <div 
             className={`
-              ${isSm ? 'w-8 h-8' : 'w-10 h-10'} 
+              ${isSm ? 'w-6 h-6' : 'w-8 h-8'} 
               relative flex items-center justify-center 
               bg-burgundy group-hover:bg-coral 
               transition-all duration-700 ease-in-out
@@ -43,25 +43,25 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           >
             {/* 
               Hand-drawn style Checkmark SVG 
-              Tuned to match the curvature and weight of the provided attachments 
+              Scaled down to match the smaller blob container
             */}
             <svg 
               viewBox="0 0 24 24" 
               fill="none" 
-              className={`${isSm ? 'w-4 h-4' : 'w-5 h-5'} text-white transition-transform duration-500 group-hover:scale-105`} 
+              className={`${isSm ? 'w-3 h-3' : 'w-4 h-4'} text-white transition-transform duration-500 group-hover:scale-105`} 
               xmlns="http://www.w3.org/2000/svg"
             >
               <path 
                 d="M6 12.5C6.5 13.5 8 15.5 10 17.5C10.5 17 14 11.5 19 6.5" 
                 stroke="currentColor" 
-                strokeWidth="3.2" 
+                strokeWidth="3.5" 
                 strokeLinecap="round" 
                 strokeLinejoin="round"
               />
             </svg>
           </div>
         </div>
-        <span className={`font-serif ${isSm ? 'text-lg' : 'text-xl'} font-bold text-burgundy tracking-tight group-hover:text-coral transition-colors duration-500`}>
+        <span className={`font-serif ${isSm ? 'text-base' : 'text-lg md:text-xl'} font-bold text-burgundy tracking-tight group-hover:text-coral transition-colors duration-500`}>
           Disability Check
         </span>
       </div>
