@@ -35,6 +35,8 @@
             animation: {
               'pop': 'popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
               'fade-in-up': 'fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'ping-slow': 'ping 3s cubic-bezier(0, 0, 0.2, 1) infinite',
+              'draw': 'drawPath 1.5s ease-out forwards',
             }
           },
         },
@@ -58,14 +60,55 @@
       }
 
       /* GLOBAL ITALIC OVERRIDE */
-      /* This forces all italics to use the custom Novantique font from Adobe Typekit */
       em, i, .italic {
         font-family: "novantique-display", "novantique", serif;
         font-weight: 400; 
         font-style: italic;
       }
       
-      /* Artful Animations */
+      /* ACCESSIBILITY: REDUCED MOTION */
+      /* Completely disables animations for users who experience vestibular issues */
+      @media (prefers-reduced-motion: reduce) {
+        *, ::before, ::after {
+          animation-delay: -1ms !important;
+          animation-duration: 1ms !important;
+          animation-iteration-count: 1 !important;
+          background-attachment: initial !important;
+          scroll-behavior: auto !important;
+          transition-duration: 0s !important;
+          transition-delay: 0s !important;
+        }
+        .fade-in-up {
+          opacity: 1 !important;
+          transform: none !important;
+        }
+      }
+
+      /* ACCESSIBILITY: HIGH CONTRAST MODE (FORCED COLORS) */
+      /* Adjusts key UI elements for users of Windows High Contrast mode */
+      @media (forced-colors: active) {
+        button {
+          border: 2px solid ButtonText !important;
+        }
+        .bg-burgundy, .bg-coral {
+          background-color: ButtonFace !important;
+          border: 1px solid ButtonText !important;
+        }
+        .text-coral, .text-burgundy {
+          color: LinkText !important;
+        }
+        svg {
+          stroke: CanvasText !important;
+        }
+      }
+
+      /* Focus Styles: High Contrast and Visible */
+      *:focus-visible {
+        outline: 3px solid #E67E50; /* Coral */
+        outline-offset: 4px;
+        box-shadow: 0 0 0 6px #FFF5F2; /* Blush background buffer */
+      }
+
       @keyframes popIn {
         0% { opacity: 0; transform: scale(0.5); }
         70% { transform: scale(1.15); }
@@ -79,6 +122,11 @@
         }
       }
 
+      @keyframes drawPath {
+        from { stroke-dashoffset: 100; }
+        to { stroke-dashoffset: 0; }
+      }
+
       .fade-in-up {
         animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         opacity: 0;
@@ -89,33 +137,16 @@
       .delay-200 { animation-delay: 0.2s; }
       .delay-300 { animation-delay: 0.3s; }
       
-      /* Luxury Smooth Transitions */
       .transition-luxury {
         transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
       }
 
-      /* Custom Scrollbar for overflow areas */
       .no-scrollbar::-webkit-scrollbar {
         display: none;
       }
       .no-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;
-      }
-      
-      /* ACCESSIBILITY: Visible Focus Styles */
-      /* Creates a high-contrast focus ring that fits the luxury aesthetic */
-      *:focus-visible {
-        outline: 3px solid #E67E50; /* Coral */
-        outline-offset: 3px;
-        border-radius: 4px;
-      }
-      
-      /* Ensure links in text blocks have sufficient contrast on focus */
-      a:focus-visible {
-        text-decoration: underline;
-        text-decoration-thickness: 2px;
-        background-color: rgba(230, 126, 80, 0.1);
       }
     </style>
   <script type="importmap">
@@ -131,6 +162,8 @@
 </script>
 </head>
   <body>
+    <!-- Screen Reader Only Live Region for dynamic announcements -->
+    <div id="aria-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
   </body>

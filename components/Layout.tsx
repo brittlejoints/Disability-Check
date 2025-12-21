@@ -15,24 +15,18 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   const isActive = (path: string) => location.pathname === path;
   
-  // Hide footer on specific pages for a cleaner "app-like" feel
   const hideFooter = ['/auth', '/onboarding'].includes(location.pathname);
 
-  // Logo Component to reuse in Header and Footer
   const Logo = ({ size = "md" }: { size?: "sm" | "md" }) => {
     const isSm = size === "sm";
-    
-    // The organic "blob" shape carefully tuned to match the user's provided images
-    // It's a slightly irregular, rounded triangular-blob
     const blobShape = '48% 52% 65% 35% / 38% 38% 62% 62%';
     
     return (
       <div className="flex items-center gap-2 group">
         <div className="relative">
-          {/* The Blob Container - Scaled down for elegance */}
           <div 
             className={`
-              ${isSm ? 'w-6 h-6' : 'w-8 h-8'} 
+              ${isSm ? 'w-6 h-6' : 'w-7 h-7'} 
               relative flex items-center justify-center 
               bg-burgundy group-hover:bg-coral 
               transition-all duration-700 ease-in-out
@@ -41,27 +35,24 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             `}
             style={{ borderRadius: blobShape }}
           >
-            {/* 
-              Hand-drawn style Checkmark SVG 
-              Scaled down to match the smaller blob container
-            */}
             <svg 
               viewBox="0 0 24 24" 
               fill="none" 
-              className={`${isSm ? 'w-3 h-3' : 'w-4 h-4'} text-white transition-transform duration-500 group-hover:scale-105`} 
+              className={`${isSm ? 'w-3 h-3' : 'w-3.5 h-3.5'} text-white transition-transform duration-500 group-hover:scale-105`} 
               xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
             >
               <path 
                 d="M6 12.5C6.5 13.5 8 15.5 10 17.5C10.5 17 14 11.5 19 6.5" 
                 stroke="currentColor" 
-                strokeWidth="3.5" 
+                strokeWidth="4" 
                 strokeLinecap="round" 
                 strokeLinejoin="round"
               />
             </svg>
           </div>
         </div>
-        <span className={`font-serif ${isSm ? 'text-base' : 'text-lg md:text-xl'} font-bold text-burgundy tracking-tight group-hover:text-coral transition-colors duration-500`}>
+        <span className={`font-serif ${isSm ? 'text-base' : 'text-lg'} font-bold text-burgundy tracking-tight group-hover:text-coral transition-colors duration-500`}>
           Disability Check
         </span>
       </div>
@@ -70,22 +61,25 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-blush text-charcoal">
-      <header className="absolute top-0 w-full z-50">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-burgundy focus:text-white focus:px-4 focus:py-2 focus:rounded-lg">
+        Skip to main content
+      </a>
+
+      <header className="absolute top-0 w-full z-50" role="banner">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-24">
-            {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
-              <Link to="/">
+              <Link to="/" aria-label="Disability Check Home">
                 <Logo />
               </Link>
             </div>
 
-            {/* Desktop Nav */}
-            <nav className="hidden md:flex space-x-10">
+            <nav className="hidden md:flex space-x-10" aria-label="Main Navigation">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
+                  aria-current={isActive(link.path) ? 'page' : undefined}
                   className={`text-sm font-medium transition-colors duration-300 relative
                     ${isActive(link.path) 
                       ? 'text-burgundy' 
@@ -94,7 +88,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 >
                   {link.name}
                   {isActive(link.path) && (
-                      <span className="absolute -bottom-2 left-0 w-full h-px bg-burgundy"></span>
+                      <span className="absolute -bottom-2 left-0 w-full h-px bg-burgundy" aria-hidden="true"></span>
                   )}
                 </Link>
               ))}
@@ -102,17 +96,16 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
             <div className="hidden md:flex items-center gap-6">
               <Link to="/auth">
-                <button className="text-sm font-medium text-burgundy hover:text-coral transition-colors">
+                <button className="text-sm font-medium text-burgundy hover:text-coral transition-colors focus:ring-2 focus:ring-coral rounded px-2 py-1">
                   Log in
                 </button>
               </Link>
             </div>
 
-            {/* Mobile menu button */}
             <div className="flex items-center md:hidden">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="inline-flex items-center justify-center p-2 text-burgundy focus:outline-none"
+                className="inline-flex items-center justify-center p-2 text-burgundy focus:outline-none focus:ring-2 focus:ring-coral rounded-lg"
                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={isMobileMenuOpen}
               >
@@ -130,10 +123,9 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white/95 backdrop-blur-xl absolute top-24 left-0 w-full border-b border-taupe/10 animate-fade-in-up">
-            <div className="pt-2 pb-6 space-y-1 px-6">
+          <div className="md:hidden bg-white/95 backdrop-blur-xl absolute top-24 left-0 w-full border-b border-taupe/10 animate-fade-in-up shadow-xl">
+            <nav className="pt-2 pb-6 space-y-1 px-6" aria-label="Mobile Navigation">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
@@ -149,25 +141,25 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 </Link>
               ))}
                <div className="pt-6">
-                 <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)} className="block w-full py-3 text-burgundy font-medium">
+                 <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)} className="block w-full py-3 text-burgundy font-medium text-center bg-burgundy/5 rounded-xl">
                    Log in
                  </Link>
                </div>
-            </div>
+            </nav>
           </div>
         )}
       </header>
 
-      <main className="flex-grow pt-24">
+      <main id="main-content" className="flex-grow pt-24" tabIndex={-1}>
         {children}
       </main>
 
       {!hideFooter && (
-        <footer className="bg-blush border-t border-taupe/10 pt-24 pb-12">
+        <footer className="bg-blush border-t border-taupe/10 pt-24 pb-12" role="contentinfo">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
             <div>
               <div className="mb-6">
-                <Link to="/">
+                <Link to="/" aria-label="Disability Check Home">
                   <Logo size="sm" />
                 </Link>
               </div>
@@ -175,7 +167,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 Empowering SSDI recipients to work with confidence. Understand your status, track your progress, and keep your benefits.
               </p>
             </div>
-            <div className="md:text-right">
+            <nav className="md:text-right" aria-label="Footer Navigation">
                <div className="flex flex-col md:flex-row gap-6 md:justify-end text-sm text-slate mb-8">
                   <a href="https://www.ssa.gov" target="_blank" rel="noopener noreferrer" className="hover:text-coral transition-colors">SSA.gov</a>
                   <Link to="/about" className="hover:text-coral transition-colors">About</Link>
@@ -184,7 +176,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                <p className="text-xs text-slate/50 font-light">
                 This is an independent educational tool. Not affiliated with the SSA. Not responsible for status of check.
                </p>
-            </div>
+            </nav>
           </div>
         </footer>
       )}

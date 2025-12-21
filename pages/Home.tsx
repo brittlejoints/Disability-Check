@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import Button from '../components/Button';
+import { CalculatorIcon, SuccessIcon, WarningIcon } from '../components/AccessibleIcons';
 
 const Home: React.FC = () => {
   return (
@@ -42,47 +43,27 @@ const Home: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-24">
             
-            {/* Feature 1 */}
+            {/* Feature 1 - Visual Timeline */}
             <div className="flex flex-col items-start gap-6 fade-in-up delay-100">
-              <div className="text-coral">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3 12H21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  <path d="M3 6H21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  <path d="M3 18H21" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  <circle cx="8" cy="12" r="2" fill="currentColor"/>
-                  <circle cx="16" cy="6" r="2" fill="currentColor"/>
-                  <circle cx="12" cy="18" r="2" fill="currentColor"/>
-                </svg>
-              </div>
+              <CalculatorIcon label="Visual Timeline tool" />
               <h3 className="text-3xl font-serif text-burgundy">Visual Timeline</h3>
               <p className="text-lg text-slate leading-relaxed font-light">
                 See exactly where you are in your 9-month Trial Work Period. No more guessing which months count and which don't.
               </p>
             </div>
             
-            {/* Feature 2 */}
+            {/* Feature 2 - Privacy */}
             <div className="flex flex-col items-start gap-6 fade-in-up delay-200">
-              <div className="text-coral">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M8 12L11 15L16 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
+              <SuccessIcon label="Security indicator" />
               <h3 className="text-3xl font-serif text-burgundy">Your Data, Your Choice</h3>
               <p className="text-lg text-slate leading-relaxed font-light">
                 Start tracking immediately as a guest with data saved to your device, or create a secure account to sync your history across devices.
               </p>
             </div>
 
-            {/* Feature 3 */}
+            {/* Feature 3 - Alerts */}
             <div className="flex flex-col items-start gap-6 fade-in-up delay-300">
-              <div className="text-coral">
-                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5"/>
-                  <path d="M12 8V12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                  <circle cx="12" cy="16" r="1" fill="currentColor"/>
-                </svg>
-              </div>
+              <WarningIcon label="Smart Alerts indicator" />
               <h3 className="text-3xl font-serif text-burgundy">Smart Alerts</h3>
               <p className="text-lg text-slate leading-relaxed font-light">
                 Context-aware guidance alerts you when you approach the 2025 TWP threshold ($1,050) or SGA limit ($1,620).
