@@ -50,26 +50,57 @@ const About: React.FC = () => {
           </div>
         </div>
 
-        {/* FAQ Section - Full Width Refinement */}
+        {/* FAQ Section - Expanded for Trust & Clarity */}
         <div className="mt-32 pt-24 border-t border-taupe/20 fade-in-up delay-300">
-          <h2 className="text-4xl font-serif text-burgundy mb-12">Common Questions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-12">
+          <div className="mb-16">
+            <span className="text-coral font-bold tracking-[0.4em] text-[10px] uppercase mb-4 block">Knowledge Base</span>
+            <h2 className="text-4xl md:text-5xl font-serif text-burgundy">Common Questions</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-16">
             <div>
-              <h3 className="font-medium text-lg text-charcoal mb-3">Is this an official SSA tool?</h3>
-              <p className="text-slate font-light leading-relaxed">No. This is an independent educational tool. Always verify your status with the Social Security Administration directly.</p>
+              <h3 className="font-serif text-xl text-burgundy mb-4">Is this an official government tool?</h3>
+              <p className="text-slate font-light leading-relaxed">No. This is a strictly <strong>independent educational resource</strong>. We are not affiliated with, authorized by, or endorsed by the Social Security Administration (SSA). This tool is meant for personal planning only; official determinations are made solely by the SSA.</p>
             </div>
+
             <div>
-              <h3 className="font-medium text-lg text-charcoal mb-3">Does this handle SSI?</h3>
-              <p className="text-slate font-light leading-relaxed">No. Disability Check is designed specifically for <strong>SSDI</strong>. SSI (Supplemental Security Income) has different calculation rules.</p>
+              <h3 className="font-serif text-xl text-burgundy mb-4">How accurate are these calculations?</h3>
+              <p className="text-slate font-light leading-relaxed">Our logic uses <strong>2025 SSA thresholds</strong> ($1,050 for TWP and $1,620 for SGA). While the math is robust, it relies entirely on the accuracy of your input. Because SSA rules can be interpreted subjectively by caseworkers, treat these results as <em>estimations</em>, not guarantees.</p>
             </div>
-             <div>
-              <h3 className="font-medium text-lg text-charcoal mb-3">What happens if I clear my browser?</h3>
-              <p className="text-slate font-light leading-relaxed">In Guest Mode, clearing your cache <strong>will delete</strong> your work history. Create an account to securely back up your data.</p>
-            </div>
+
             <div>
-              <h3 className="font-medium text-lg text-charcoal mb-3">Is my income data sold?</h3>
-              <p className="text-slate font-light leading-relaxed">Absolutely not. Your data is encrypted and used solely for the purpose of your personal benefit tracking.</p>
+              <h3 className="font-serif text-xl text-burgundy mb-4">Can the SSA see the data I enter?</h3>
+              <p className="text-slate font-light leading-relaxed">Absolutely not. Your data is private. If you are in <strong>Guest Mode</strong>, it never leaves your browser. If you have an <strong>Account</strong>, it is stored in a secure, encrypted database. We have no mechanism to share your information with any government agency.</p>
             </div>
+
+            <div>
+              <h3 className="font-serif text-xl text-burgundy mb-4">Does this handle SSI or other state benefits?</h3>
+              <p className="text-slate font-light leading-relaxed">No. This tool is designed exclusively for <strong>SSDI (Social Security Disability Insurance)</strong>. SSI and other programs have completely different income calculation rules (such as resource limits and different deduction percentages) that are not currently supported.</p>
+            </div>
+
+            <div>
+              <h3 className="font-serif text-xl text-burgundy mb-4">What if I am legally blind?</h3>
+              <p className="text-slate font-light leading-relaxed">The SGA limit for individuals who meet the SSA definition of blindness is significantly higher (<strong>$2,590/mo in 2025</strong>) than the standard limit ($1,620). Currently, our dashboard uses the standard limit. We recommend blind users keep this higher threshold in mind when reviewing their status.</p>
+            </div>
+
+            <div>
+              <h3 className="font-serif text-xl text-burgundy mb-4">How does the 60-month rolling window work?</h3>
+              <p className="text-slate font-light leading-relaxed">Your 9 Trial Work months don't have to be consecutive. However, they must occur within a <strong>60-month (5-year) window</strong>. Our logic automatically looks back at your history to determine if 9 "service months" have been triggered within any 5-year block.</p>
+            </div>
+
+            <div>
+              <h3 className="font-serif text-xl text-burgundy mb-4">What if I have two jobs or a side hustle?</h3>
+              <p className="text-slate font-light leading-relaxed">The SSA looks at your <strong>total combined income</strong> from all work sources. You can use our built-in <strong>Income Calculator</strong> to add multiple pay stubs or project invoices together for a single month to get an accurate total for your log.</p>
+            </div>
+
+            <div>
+              <h3 className="font-serif text-xl text-burgundy mb-4">What happens if I stop using the app?</h3>
+              <p className="text-slate font-light leading-relaxed">If you use Guest Mode and clear your browser cache, your history <strong>will be permanently lost</strong>. We recommend creating an account to ensure your progress is saved, allowing you to return and update your log months or years later.</p>
+            </div>
+          </div>
+
+          <div className="mt-20 p-8 bg-coral/5 border border-coral/10 rounded-[2.5rem] text-center">
+             <p className="text-burgundy font-serif italic text-lg">Still have questions? The best source of truth is always a qualified benefits counselor or your local SSA office.</p>
           </div>
         </div>
       </div>

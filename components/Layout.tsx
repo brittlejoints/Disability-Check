@@ -174,9 +174,10 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                   <Link to="/about" className="hover:text-coral transition-colors">About</Link>
                   <Link to="/learn" className="hover:text-coral transition-colors">Rules</Link>
                </div>
-               <p className="text-xs text-slate/50 font-light">
-                This is an independent educational tool. Not affiliated with the SSA. Not responsible for status of check.
-               </p>
+               <div className="text-[10px] text-slate/60 font-light leading-relaxed max-w-md md:ml-auto space-y-3" style={{ textWrap: 'pretty' } as any}>
+                <p><strong>DISCLAIMER:</strong> This application is a strictly independent educational and informational resource. It is NOT affiliated with, authorized by, sponsored by, or endorsed by the Social Security Administration (SSA) or any other government agency. All calculations, phase tracking, and benefit status estimations provided by this tool are automated projections based solely on user-provided inputs and current 2025 thresholds; they do not represent official determinations or legal proof of eligibility.</p>
+                <p>No information provided through this service constitutes legal, financial, medical, or professional advice. Users bear full and exclusive responsibility for verifying their own status and for reporting all work activity and income directly to the SSA in accordance with federal law. We assume no liability for any loss of benefits, overpayments, administrative penalties, or financial consequences arising from the use of this software or reliance on its estimations. Use of this application implies full acknowledgment and acceptance of these terms and limitations.</p>
+               </div>
             </nav>
           </div>
         </footer>

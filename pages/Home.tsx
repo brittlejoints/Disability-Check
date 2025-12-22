@@ -70,7 +70,7 @@ const Home: React.FC = () => {
               </div>
             </div>
             <div className="lg:col-span-7 space-y-12 fade-in-up delay-100">
-               <h2 className="text-5xl md:text-6xl font-serif text-burgundy leading-tight">Your history is yours.<br/><span className="italic text-coral">Keep it safe.</span></h2>
+               <h2 className="text-5xl md:text-6xl font-serif text-burgundy leading-tight">Your history is yours.<br/><span className="font-script text-coral">Keep it safe.</span></h2>
                <p className="text-2xl text-slate font-light leading-relaxed max-w-2xl">
                  We don't just track numbers. We visualize the rules that govern your independence, translating complex SSA manuals into simple, actionable tiles.
                </p>
@@ -119,7 +119,7 @@ const Home: React.FC = () => {
           style={{ transform: `translateY(${scrollY * 0.1}px)` }}
         >
           {/* Layer 1: Large Abstract Segments */}
-          <div className="absolute top-0 left-0 w-full h-full">
+          <div className="absolute top-10 left-10 w-full h-full">
              <div className="absolute top-10 left-10 w-96 h-96 bg-coral/5 rounded-[5rem] rotate-12"></div>
              <div className="absolute bottom-0 right-10 w-[40rem] h-[40rem] bg-epeBlue/5 rounded-full -mb-40"></div>
           </div>
