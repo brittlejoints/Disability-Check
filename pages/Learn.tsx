@@ -2,105 +2,112 @@ import * as React from 'react';
 import Layout from '../components/Layout';
 import { THRESHOLDS_2025 } from '../constants';
 import { formatCurrency } from '../utils/logic';
+import { JourneyPlot, ProtectivePlot, GrowthPlot } from '../components/GeometricIllustrations';
 
 const Learn: React.FC = () => {
   return (
     <Layout>
-      <div className="pt-24 pb-16 px-4 border-b border-taupe/20">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-serif text-burgundy mb-6 fade-in-up">The Rules, Simplified</h1>
-          <p className="text-xl text-slate font-light leading-relaxed fade-in-up delay-100">
-            The path to working while on SSDI involves three distinct phases. Understanding them is the key to protecting your benefits.
+      <div className="pt-32 pb-24 px-4 border-b border-taupe/20 bg-gradient-to-b from-blush to-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <span className="text-coral font-bold tracking-[0.4em] text-[10px] uppercase mb-6 block">Educational Primer</span>
+          <h1 className="text-6xl md:text-8xl font-serif font-light text-burgundy mb-10 tracking-tight leading-[1.1] fade-in-up">
+            The Phases of <span className="font-script text-coral">Progress</span>
+          </h1>
+          <p className="text-xl text-slate font-light leading-relaxed fade-in-up delay-100 max-w-2xl mx-auto">
+            The path to working while on SSDI is structured into three specific safety nets. Understanding them transforms fear into strategy.
           </p>
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-24 space-y-32">
+      <div className="max-w-6xl mx-auto px-4 py-32 space-y-48">
+        
         {/* Phase 1 */}
-        <section className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start fade-in-up">
-          <div className="md:col-span-3 relative select-none">
-            <span className="block text-coral font-bold text-sm uppercase tracking-[0.2em] opacity-80 pl-2 mb-[-10px]">Phase</span>
-            <div className="text-coral font-serif text-8xl md:text-9xl opacity-20 font-bold leading-none">
-              01
-            </div>
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-center fade-in-up">
+          <div className="lg:col-span-5">
+             <div className="relative">
+                <JourneyPlot ariaLabel="Journey through the night illustration" className="w-full h-auto rounded-[3rem] shadow-luxury" />
+                <div className="absolute -top-6 -left-6 bg-burgundy text-white px-6 py-2 rounded-full font-serif text-lg">Phase 01</div>
+             </div>
           </div>
-          <div className="md:col-span-9">
-            <h2 className="text-4xl font-serif text-burgundy mb-6">Trial Work Period (TWP)</h2>
-            <div className="prose prose-lg text-slate font-light">
-              <p className="text-xl text-charcoal mb-6">
-                The TWP allows you to test your ability to work for at least <strong>9 months</strong>. During this period, you will receive your full disability benefits regardless of how much you earn.
+          <div className="lg:col-span-7">
+            <h2 className="text-5xl font-serif text-burgundy mb-8">Trial Work Period (TWP)</h2>
+            <div className="prose prose-lg text-slate font-light max-w-none">
+              <p className="text-xl text-charcoal mb-8 leading-relaxed">
+                The TWP is your experimental phase. For <strong>9 months</strong>, you can earn any amount without impacting your monthly benefit check.
               </p>
-              <ul className="space-y-4 mb-8 list-none pl-0">
-                <li className="flex gap-4">
-                  <span className="w-1.5 h-1.5 rounded-full bg-coral mt-2.5 flex-shrink-0"></span>
-                  <span>A "service month" is any month you earn more than <strong>{formatCurrency(THRESHOLDS_2025.twp)}</strong>.</span>
-                </li>
-                <li className="flex gap-4">
-                  <span className="w-1.5 h-1.5 rounded-full bg-coral mt-2.5 flex-shrink-0"></span>
-                  <span>The 9 months do not have to be consecutive.</span>
-                </li>
-                <li className="flex gap-4">
-                  <span className="w-1.5 h-1.5 rounded-full bg-coral mt-2.5 flex-shrink-0"></span>
-                  <span>Completes when you accumulate 9 service months within a rolling 60-month window.</span>
-                </li>
-              </ul>
-              <p className="text-burgundy italic border-l-2 border-coral pl-6 py-2">
-                Insight: You can earn as much as you want during these 9 months without losing your check.
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                 <div className="p-6 bg-white rounded-2xl border border-taupe/10 shadow-sm">
+                    <span className="text-xs font-bold text-coral uppercase tracking-widest mb-2 block">Threshold</span>
+                    <p className="text-lg text-burgundy font-medium">A "service month" is triggered when you earn over <strong>{formatCurrency(THRESHOLDS_2025.twp)}</strong>.</p>
+                 </div>
+                 <div className="p-6 bg-white rounded-2xl border border-taupe/10 shadow-sm">
+                    <span className="text-xs font-bold text-coral uppercase tracking-widest mb-2 block">Rolling Window</span>
+                    <p className="text-lg text-burgundy font-medium">You must complete 9 months within a 60-month window.</p>
+                 </div>
+              </div>
+              <p className="text-burgundy italic border-l-2 border-coral pl-6 py-3 bg-coral/5 rounded-r-xl">
+                Insight: This is the time to build your confidence without financial risk.
               </p>
             </div>
           </div>
         </section>
 
         {/* Phase 2 */}
-        <section className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start fade-in-up">
-          <div className="md:col-span-3 relative select-none">
-            <span className="block text-epeBlue font-bold text-sm uppercase tracking-[0.2em] opacity-80 pl-2 mb-[-10px]">Phase</span>
-            <div className="text-epeBlue font-serif text-8xl md:text-9xl opacity-20 font-bold leading-none">
-              02
-            </div>
-          </div>
-          <div className="md:col-span-9">
-            <h2 className="text-4xl font-serif text-burgundy mb-6">Extended Period of Eligibility (EPE)</h2>
-             <div className="prose prose-lg text-slate font-light">
-              <p className="text-xl text-charcoal mb-6">
-                After your TWP ends, a <strong>36-month</strong> safety net begins. Benefits are paid for months your earnings are below the Substantial Gainful Activity (SGA) level.
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-center fade-in-up delay-100">
+          <div className="lg:col-span-7 order-2 lg:order-1">
+            <h2 className="text-5xl font-serif text-burgundy mb-8">Extended Period of Eligibility (EPE)</h2>
+            <div className="prose prose-lg text-slate font-light max-w-none">
+              <p className="text-xl text-charcoal mb-8 leading-relaxed">
+                After the 9th month, your <strong>36-month safety net</strong> begins. Benefits are only paused for months you earn above the "Substantial" limit.
               </p>
-              <ul className="space-y-4 mb-8 list-none pl-0">
-                <li className="flex gap-4">
-                  <span className="w-1.5 h-1.5 rounded-full bg-epeBlue mt-2.5 flex-shrink-0"></span>
-                  <span>If you earn over <strong>{formatCurrency(THRESHOLDS_2025.sga)}</strong>, you will not receive a benefit check for that month.</span>
+              <ul className="space-y-6 mb-10 list-none pl-0">
+                <li className="flex gap-5">
+                  <span className="w-12 h-12 rounded-full bg-epeBlue/10 text-epeBlue flex items-center justify-center flex-shrink-0 font-bold">1</span>
+                  <span>If earnings are below <strong>{formatCurrency(THRESHOLDS_2025.sga)}</strong>, you receive your full benefit check.</span>
                 </li>
-                <li className="flex gap-4">
-                  <span className="w-1.5 h-1.5 rounded-full bg-epeBlue mt-2.5 flex-shrink-0"></span>
-                  <span>If your earnings drop below SGA, benefits can restart automatically.</span>
+                <li className="flex gap-5">
+                  <span className="w-12 h-12 rounded-full bg-epeBlue/10 text-epeBlue flex items-center justify-center flex-shrink-0 font-bold">2</span>
+                  <span>If earnings exceed the limit, the check is suspended, but the safety net remains active.</span>
                 </li>
               </ul>
-              <p className="text-epeBlue italic border-l-2 border-epeBlue pl-6 py-2">
-                Insight: This is your safety net. Work more if you can, but benefits are there if you can't.
-              </p>
+              <div className="p-8 bg-epeBlue/5 rounded-3xl border border-epeBlue/10">
+                 <p className="text-epeBlue font-serif text-xl italic leading-relaxed">
+                   "Think of EPE as a toggle switch. If your work slows down, your benefits restart automatically."
+                 </p>
+              </div>
             </div>
+          </div>
+          <div className="lg:col-span-5 order-1 lg:order-2">
+             <div className="relative">
+                <ProtectivePlot ariaLabel="Safety net illustration" className="w-full h-auto rounded-[3rem] shadow-luxury" />
+                <div className="absolute -top-6 -right-6 bg-epeBlue text-white px-6 py-2 rounded-full font-serif text-lg">Phase 02</div>
+             </div>
           </div>
         </section>
 
         {/* Phase 3 */}
-        <section className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start fade-in-up">
-          <div className="md:col-span-3 relative select-none">
-            <span className="block text-charcoal font-bold text-sm uppercase tracking-[0.2em] opacity-60 pl-2 mb-[-10px]">Phase</span>
-            <div className="text-charcoal font-serif text-8xl md:text-9xl opacity-10 font-bold leading-none">
-              03
-            </div>
-          </div>
-          <div className="md:col-span-9">
-            <h2 className="text-4xl font-serif text-burgundy mb-6">Post-Eligibility</h2>
-            <div className="prose prose-lg text-slate font-light">
-              <p className="text-xl text-charcoal mb-6">
-                 After the 36-month EPE ends, your benefits will continue only if you are still disabled and your earnings remain below the SGA level.
-              </p>
-              <p>
-                If you earn above SGA after this point, your benefits may terminate. However, expedited reinstatement is available for 5 years if your disability prevents you from working again.
-              </p>
-            </div>
-          </div>
+        <section className="max-w-4xl mx-auto bg-white rounded-[4rem] p-12 md:p-20 shadow-soft border border-taupe/10 relative overflow-hidden fade-in-up delay-200">
+           <div className="absolute top-0 right-0 w-64 h-64 opacity-20 -mr-20 -mt-20">
+              <GrowthPlot ariaLabel="Growth decoration" className="w-full h-auto" />
+           </div>
+           
+           <div className="relative z-10 text-center">
+             <span className="text-slate font-bold tracking-[0.4em] text-[10px] uppercase mb-6 block">Post-Eligibility</span>
+             <h2 className="text-5xl font-serif text-burgundy mb-8">Final Transition</h2>
+             <p className="text-2xl text-slate font-light leading-relaxed mb-12">
+               Once the 36-month EPE ends, benefits continue as long as you remain disabled and earn below the SGA limit.
+             </p>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-left pt-12 border-t border-taupe/10">
+                <div>
+                   <h4 className="text-xl font-bold text-burgundy mb-4">Termination Rule</h4>
+                   <p className="text-slate font-light">Earning over SGA after your EPE ends can lead to benefit termination, but support isn't gone forever.</p>
+                </div>
+                <div>
+                   <h4 className="text-xl font-bold text-burgundy mb-4">EXR (Expedited Reinstatement)</h4>
+                   <p className="text-slate font-light">If you stop working within 5 years of termination, you can request benefits restart without a new application.</p>
+                </div>
+             </div>
+           </div>
         </section>
       </div>
     </Layout>
