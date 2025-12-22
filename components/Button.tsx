@@ -1,5 +1,5 @@
-
-import React, { forwardRef } from 'react';
+import * as React from 'react';
+import { forwardRef } from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'danger';

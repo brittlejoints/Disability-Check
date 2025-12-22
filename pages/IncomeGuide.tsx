@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import Layout from '../components/Layout';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -11,7 +11,6 @@ const IncomeGuide: React.FC = () => {
       <div className="pt-24 pb-16 px-4 border-b border-taupe/20 bg-gradient-to-b from-blush to-white">
         <div className="max-w-3xl mx-auto text-center">
           <span className="text-coral font-bold tracking-widest text-xs uppercase mb-4 block">Educational Resource</span>
-          {/* Updated H1 to match Home page typography */}
           <h1 className="text-6xl md:text-8xl font-serif font-light text-burgundy mb-8 tracking-tight leading-[1.1] fade-in-up">
             The Art of <span className="font-script text-coral">Reporting</span>
           </h1>

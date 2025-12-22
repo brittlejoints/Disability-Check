@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import Layout from '../components/Layout';
 import { THRESHOLDS_2025 } from '../constants';
 import { formatCurrency } from '../utils/logic';

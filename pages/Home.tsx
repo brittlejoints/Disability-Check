@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import Button from '../components/Button';
@@ -7,7 +7,7 @@ import { CalculatorIcon, SuccessIcon, WarningIcon } from '../components/Accessib
 const Home: React.FC = () => {
   return (
     <Layout>
-      {/* Hero Section */}
+      {/* Hero Section - Restored to Centered Editorial Layout */}
       <section className="relative min-h-[90vh] flex flex-col justify-center items-center text-center px-4 overflow-hidden pt-20">
         <div className="max-w-4xl mx-auto relative z-10 fade-in-up">
           <h1 className="text-6xl md:text-8xl font-serif font-light text-burgundy mb-8 tracking-tight leading-[1.1]">
@@ -19,7 +19,7 @@ const Home: React.FC = () => {
           </p>
           <div className="mt-12 flex flex-col sm:flex-row justify-center gap-6 fade-in-up delay-200">
             <Link to="/dashboard">
-              <Button className="px-10 py-4 text-lg bg-burgundy text-white hover:bg-coral transition-colors rounded-full">
+              <Button className="px-10 py-4 text-lg bg-burgundy text-white hover:bg-coral transition-colors rounded-full shadow-luxury">
                 Start Tracking
               </Button>
             </Link>

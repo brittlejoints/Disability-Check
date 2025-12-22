@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import * as React from 'react';
+import { useMemo, useState } from 'react';
 import { AnalyzedEntry } from '../types';
 import { THRESHOLDS_2025 } from '../constants';
 import { formatCurrency, formatDateReadable, parseDate } from '../utils/logic';
