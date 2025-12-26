@@ -1,3 +1,4 @@
+
 import * as React from 'react';
 import { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
@@ -23,11 +24,11 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const blobShape = '48% 52% 65% 35% / 38% 38% 62% 62%';
     
     return (
-      <div className="flex items-center gap-2 group">
+      <div className="flex items-center gap-1.5 group">
         <div className="relative">
           <div 
             className={`
-              ${isSm ? 'w-6 h-6' : 'w-7 h-7'} 
+              ${isSm ? 'w-5 h-5' : 'w-6 h-6'} 
               relative flex items-center justify-center 
               bg-burgundy group-hover:bg-coral 
               transition-all duration-700 ease-in-out
@@ -39,21 +40,21 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <svg 
               viewBox="0 0 24 24" 
               fill="none" 
-              className={`${isSm ? 'w-3 h-3' : 'w-3.5 h-3.5'} text-white transition-transform duration-500 group-hover:scale-105`} 
+              className={`${isSm ? 'w-2.5 h-2.5' : 'w-3 h-3'} text-white transition-transform duration-500 group-hover:scale-105`} 
               xmlns="http://www.w3.org/2000/svg"
               aria-hidden="true"
             >
               <path 
                 d="M6 12.5C6.5 13.5 8 15.5 10 17.5C10.5 17 14 11.5 19 6.5" 
                 stroke="currentColor" 
-                strokeWidth="4" 
+                strokeWidth="4.5" 
                 strokeLinecap="round" 
                 strokeLinejoin="round"
               />
             </svg>
           </div>
         </div>
-        <span className={`font-serif ${isSm ? 'text-base' : 'text-lg'} font-bold text-burgundy tracking-tight group-hover:text-coral transition-colors duration-500`}>
+        <span className={`font-serif ${isSm ? 'text-sm' : 'text-base'} font-bold text-burgundy tracking-tight group-hover:text-coral transition-colors duration-500`}>
           Disability Check
         </span>
       </div>

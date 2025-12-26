@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Layout from '../components/Layout';
 import Card from '../components/Card';
 import Button from '../components/Button';
@@ -8,13 +8,15 @@ import Badge from '../components/Badge';
 import ConfirmationModal from '../components/ConfirmationModal';
 import IncomeChart from '../components/IncomeChart';
 import IncomeCalculator from '../components/IncomeCalculator';
-import { LoadingSpinner, WarningIcon, MilestoneIcon, announce, CalculatorIcon } from '../components/AccessibleIcons';
+import { LoadingSpinner, WarningIcon, MilestoneIcon, announce, CalculatorIcon, SuccessIcon } from '../components/AccessibleIcons';
 import { WorkEntry, PhaseType, CalculationResult, BenefitStatus } from '../types';
 import { calculateStatus, formatCurrency, formatDateReadable, generateId } from '../utils/logic';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../utils/supabase';
 import { Link } from 'react-router-dom';
 import { EmptyStatePlot, JourneyPlot, ProtectivePlot, ConnectionPlot, MilestoneMosaic } from '../components/GeometricIllustrations';
+
+const STORAGE_KEY = 'disability_check_entries';
 
 const Dashboard: React.FC = () => {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -23,6 +25,8 @@ const Dashboard: React.FC = () => {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showGuestWarning, setShowGuestWarning] = useState(false);
+  const [hasLocalDataToSync, setHasLocalDataToSync] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [idsToDelete, setIdsToDelete] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [month, setMonth] = useState('');
@@ -31,10 +35,33 @@ const Dashboard: React.FC = () => {
   const [formError, setFormError] = useState<string | null>(null);
   const [isCalcOpen, setIsCalcOpen] = useState(false);
 
+  // Persistence Helper: Save to Local Storage safely
+  const persistToLocal = useCallback((updatedEntries: WorkEntry[]) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedEntries));
+    } catch (e) {
+      console.error("Local storage persistence failed:", e);
+    }
+  }, []);
+
   useEffect(() => {
     const loadData = async () => {
       setIsLoadingData(true);
+      
+      // Load guest data from localStorage
+      const localDataRaw = localStorage.getItem(STORAGE_KEY);
+      let localEntries: WorkEntry[] = [];
+      if (localDataRaw) {
+        try {
+          localEntries = JSON.parse(localDataRaw);
+        } catch (e) { 
+          console.error("Corrupt local data", e);
+          localStorage.removeItem(STORAGE_KEY);
+        }
+      }
+
       if (user && supabase) {
+        // Logged in: Load from Cloud
         const { data, error } = await supabase
           .from('work_entries')
           .select('*')
@@ -43,17 +70,18 @@ const Dashboard: React.FC = () => {
         
         if (data && !error) {
           setEntries(data as WorkEntry[]);
+          // If we have local data that isn't in the cloud, flag for sync
+          if (localEntries.length > 0) {
+            setHasLocalDataToSync(true);
+          }
         }
       } else {
-        const saved = localStorage.getItem('disability_check_entries');
-        if (saved) {
-          try {
-            setEntries(JSON.parse(saved));
-          } catch (e) { console.error(e); }
-        }
+        // Guest Mode: Use Local Storage
+        setEntries(localEntries);
         const warningDismissed = sessionStorage.getItem('dc_guest_warning_dismissed');
         if (!warningDismissed) setShowGuestWarning(true);
       }
+      
       setIsLoadingData(false);
       announce("Work history data loaded.");
     };
@@ -66,13 +94,51 @@ const Dashboard: React.FC = () => {
     setStatus(result);
   }, [entries]);
 
+  const handleSyncLocalToCloud = async () => {
+    if (!user || !supabase) return;
+    setIsSyncing(true);
+    
+    const localDataRaw = localStorage.getItem(STORAGE_KEY);
+    if (!localDataRaw) return;
+    
+    try {
+      const localEntries = JSON.parse(localDataRaw) as WorkEntry[];
+      
+      const payload = localEntries.map(e => ({
+        month: e.month,
+        income: e.income,
+        note: e.note || '',
+        user_id: user.id
+      }));
+
+      // Upsert avoids duplicate month conflicts
+      const { data, error } = await supabase
+        .from('work_entries')
+        .upsert(payload, { onConflict: 'user_id,month' })
+        .select();
+
+      if (error) throw error;
+
+      if (data) setEntries(data as WorkEntry[]);
+      
+      localStorage.removeItem(STORAGE_KEY);
+      setHasLocalDataToSync(false);
+      announce("Sync complete. Your work history is now saved to your account.");
+    } catch (e) {
+      console.error("Sync failed:", e);
+      setFormError("Migration to cloud failed. Please try again.");
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   const saveEntry = async (newEntry: WorkEntry) => {
     announce("Saving entry for " + formatDateReadable(newEntry.month));
+    
+    // Optimistic state update
     setEntries(prev => {
-        const updated = [...prev, newEntry];
-        if (!user || !supabase) {
-             localStorage.setItem('disability_check_entries', JSON.stringify(updated));
-        }
+        const updated = [...prev, newEntry].sort((a, b) => a.month.localeCompare(b.month));
+        if (!user) persistToLocal(updated);
         return updated;
     });
     
@@ -108,14 +174,14 @@ const Dashboard: React.FC = () => {
         if (user && supabase) {
             await supabase.from('work_entries').delete().in('id', idsToDelete).eq('user_id', user.id);
         } 
+        
         const updated = entries.filter(e => !idsToDelete.includes(e.id));
-        if (!user || !supabase) {
-            localStorage.setItem('disability_check_entries', JSON.stringify(updated));
-        }
+        if (!user) persistToLocal(updated);
+        
         setEntries(updated);
         setIdsToDelete([]);
         setSelectedIds([]);
-        announce("Deletion complete.");
+        announce("Entry deleted.");
     } catch (error) {
         announce("Error: Deletion failed.");
     } finally {
@@ -141,11 +207,6 @@ const Dashboard: React.FC = () => {
     return <ConnectionPlot ariaLabel="Stable connection" className="w-full h-auto rounded-3xl" />;
   };
 
-  /**
-   * IRREGULAR BLOB GRID (TWP Tracking)
-   * Renders 9 organic "uniformly irregular" blobs for Trial Work Period months.
-   * Features unique warm colors for each month.
-   */
   const TWPGrid = ({ count }: { count: number }) => {
     const shapes = [
       '60% 40% 30% 70% / 60% 30% 70% 40%',
@@ -160,15 +221,7 @@ const Dashboard: React.FC = () => {
     ];
 
     const warmColors = [
-      '#E67E50', // Coral
-      '#C95233', // Terracotta
-      '#E8A573', // Warning Orange
-      '#A0522D', // Sienna
-      '#CD5C5C', // Indian Red
-      '#D2691E', // Chocolate
-      '#4A1520', // Burgundy (Dark contrast)
-      '#E2725B', // Terra Cotta Light
-      '#8B4513'  // Saddle Brown
+      '#E67E50', '#C95233', '#E8A573', '#A0522D', '#CD5C5C', '#D2691E', '#4A1520', '#E2725B', '#8B4513'
     ];
 
     return (
@@ -176,7 +229,6 @@ const Dashboard: React.FC = () => {
         {[...Array(9)].map((_, i) => {
           const isUsed = i < count;
           const blobColor = warmColors[i % warmColors.length];
-          const isDark = i === 6 || i === 8; // Burgundy or Saddle Brown
           
           return (
             <div 
@@ -185,7 +237,6 @@ const Dashboard: React.FC = () => {
                 borderRadius: shapes[i % shapes.length],
                 backgroundColor: isUsed ? blobColor : 'transparent',
                 borderColor: isUsed ? blobColor : '#D4B5A7',
-                borderOpacity: isUsed ? 1 : 0.2
               }}
               className={`
                 aspect-square flex items-center justify-center transition-all duration-1000 ease-out border-2
@@ -195,13 +246,7 @@ const Dashboard: React.FC = () => {
               `}
             >
               {isUsed && (
-                <svg 
-                  className={`w-6 h-6 animate-pop ${isDark ? 'text-white' : 'text-white'}`} 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor"
-                  aria-hidden="true"
-                >
+                <svg className={`w-6 h-6 animate-pop text-white`} viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path d="M20 6L9 17L4 12" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               )}
@@ -212,11 +257,6 @@ const Dashboard: React.FC = () => {
     );
   };
 
-  /**
-   * EPE PREVIEW (36-Month Timeline Roadmap)
-   * Always visible as a visual goal. 
-   * Input disabled (grayscale) until all 9 TWP months are used.
-   */
   const EPEPreview = ({ isLocked, startDate, endDate }: { isLocked: boolean, startDate?: string | null, endDate?: string | null }) => (
     <div className={`mt-10 pt-8 border-t border-taupe/10 transition-all duration-1000 ${isLocked ? 'grayscale opacity-40' : 'opacity-100'}`}>
       <div className="flex justify-between items-center mb-6">
@@ -237,7 +277,6 @@ const Dashboard: React.FC = () => {
       </div>
 
       <div className="space-y-4">
-        {/* Full 36-month Roadmap visualization */}
         <div className="flex items-center gap-1">
           {[...Array(36)].map((_, i) => (
             <div 
@@ -246,21 +285,6 @@ const Dashboard: React.FC = () => {
             ></div>
           ))}
         </div>
-        
-        <div className="grid grid-cols-3 gap-4 text-center">
-           {[1, 2, 3].map(year => (
-             <div key={year} className="flex flex-col gap-1">
-                <span className="text-[9px] font-bold text-slate/40 uppercase tracking-tighter">Year {year}</span>
-                <div className={`h-1.5 rounded-full ${isLocked ? 'bg-taupe/5' : 'bg-epeBlue/10'}`}></div>
-             </div>
-           ))}
-        </div>
-
-        <p className="text-[10px] text-slate font-light leading-relaxed">
-          {isLocked 
-            ? "Your 36-month Extended Period of Eligibility roadmap. Complete 9 trial months to activate." 
-            : "Safety net active. Benefits resume automatically during any month income is below SGA."}
-        </p>
       </div>
     </div>
   );
@@ -269,8 +293,8 @@ const Dashboard: React.FC = () => {
       return (
         <Layout>
           <div className="flex flex-col justify-center items-center h-[80vh] gap-6" aria-live="polite">
-            <LoadingSpinner size={64} label="Loading your dashboard..." />
-            <p className="text-burgundy font-serif text-xl animate-pulse">Loading Dashboard...</p>
+            <LoadingSpinner size={64} label="Loading your workspace..." />
+            <p className="text-burgundy font-serif text-xl animate-pulse">Initializing Workspace...</p>
           </div>
         </Layout>
       );
@@ -280,26 +304,63 @@ const Dashboard: React.FC = () => {
     <Layout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         
-        {/* Guest Warning */}
+        {/* Sync Local Data to Cloud Banner */}
+        {hasLocalDataToSync && user && (
+          <div className="mb-12 p-6 bg-burgundy text-white rounded-[2rem] shadow-luxury flex flex-col md:flex-row items-center justify-between gap-6 animate-pop">
+             <div className="flex items-center gap-5">
+                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+                   <SuccessIcon size={24} className="text-peach" />
+                </div>
+                <div>
+                   <h4 className="text-xl font-serif">Cloud Migration Available</h4>
+                   <p className="text-sm text-peach/70">You have history on this device that isn't in your account yet.</p>
+                </div>
+             </div>
+             <div className="flex gap-4">
+                <button 
+                  onClick={() => { setHasLocalDataToSync(false); localStorage.removeItem(STORAGE_KEY); }}
+                  className="text-sm font-medium hover:underline text-peach/50"
+                >
+                  Dismiss & Clear Local
+                </button>
+                <Button 
+                  onClick={handleSyncLocalToCloud} 
+                  disabled={isSyncing}
+                  className="bg-coral text-white border-transparent"
+                >
+                  {isSyncing ? 'Migrating...' : 'Save to Cloud Account'}
+                </Button>
+             </div>
+          </div>
+        )}
+
+        {/* Persistent Guest Warning */}
         {showGuestWarning && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-burgundy/10 backdrop-blur-md animate-fade-in-up" role="dialog">
             <div className="bg-white rounded-[2.5rem] shadow-luxury max-w-lg w-full p-10 text-center border border-taupe/10 relative">
                <WarningIcon size={64} className="mx-auto mb-6 text-warningOrange" />
-               <h3 className="text-3xl font-serif text-burgundy mb-4">Guest Mode</h3>
-               <p className="text-slate font-light leading-relaxed mb-10">Data is local to this device. Sync to the cloud to prevent loss.</p>
+               <h3 className="text-3xl font-serif text-burgundy mb-4">Guest Access</h3>
+               <p className="text-slate font-light leading-relaxed mb-10">You are tracking data locally. If you clear your browser history or switch devices, <strong>all entries will be lost</strong>.</p>
                <Link to="/auth" className="w-full">
-                  <Button fullWidth className="bg-burgundy mb-4">Create Account</Button>
+                  <Button fullWidth className="bg-burgundy mb-4">Protect My Data (Sign Up)</Button>
                </Link>
-               <button onClick={() => setShowGuestWarning(false)} className="text-sm text-slate underline">Continue as Guest</button>
+               <button onClick={() => { setShowGuestWarning(false); sessionStorage.setItem('dc_guest_warning_dismissed', 'true'); }} className="text-sm text-slate underline">Continue as Guest</button>
             </div>
           </div>
         )}
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-16 fade-in-up gap-4">
             <div>
-                <span className="text-coral font-bold tracking-[0.4em] text-[10px] uppercase mb-4 block">Personal Tracking</span>
-                <h1 className="text-5xl md:text-6xl font-serif text-burgundy mb-2">Clarity Workspace</h1>
-                <p className="text-xl text-slate font-light">{user ? user.email : 'Guest Session'}</p>
+                <span className="text-coral font-bold tracking-[0.4em] text-[10px] uppercase mb-4 block">Work Clarity</span>
+                <h1 className="text-5xl md:text-6xl font-serif text-burgundy mb-2">Income Log</h1>
+                <p className="text-xl text-slate font-light">
+                  {user ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-successGreen animate-pulse"></div>
+                      {user.email}
+                    </span>
+                  ) : 'Guest Session (Offline Only)'}
+                </p>
             </div>
             {user && (
                 <button onClick={signOut} className="text-sm text-burgundy underline hover:text-coral transition-colors p-2 focus:ring-2 focus:ring-coral rounded">Sign Out</button>
@@ -307,8 +368,6 @@ const Dashboard: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          
-          {/* Left Column: Visual Status (4 Cols) */}
           <div className="lg:col-span-4 space-y-8 fade-in-up delay-100">
             <Card variant="glass" className="overflow-hidden p-0 pb-12 h-fit">
               <div className="relative mb-10">
@@ -317,33 +376,19 @@ const Dashboard: React.FC = () => {
               </div>
               
               <div className="px-8 text-center">
-                <span className="text-xs font-bold text-coral uppercase tracking-widest opacity-70 mb-2 block">Current Milestone</span>
+                <span className="text-xs font-bold text-coral uppercase tracking-widest opacity-70 mb-2 block">Status Summary</span>
                 <h2 className="text-3xl font-serif text-burgundy mb-10">{status?.currentPhase}</h2>
-                
-                {/* 9 ORGANIC BLOBS - ALWAYS VISIBLE */}
                 <div className="animate-fade-in-up">
                   <TWPGrid count={status?.twpMonthsUsed || 0} />
                   <p className="text-sm text-slate font-medium">
-                    <span className="text-coral font-bold">{status?.twpMonthsUsed || 0}</span> of <span className="text-burgundy">9</span> Trial Work months used.
+                    <span className="text-coral font-bold">{status?.twpMonthsUsed || 0}</span> of <span className="text-burgundy">9</span> months used.
                   </p>
                 </div>
-
-                {/* EPE ROADMAP PREVIEW - ALWAYS VISIBLE */}
                 <EPEPreview 
                   isLocked={!status?.twpCompletedDate} 
                   startDate={status?.epeStartDate}
                   endDate={status?.epeEndDate}
                 />
-
-                {status?.twpCompletedDate && status.currentPhase !== PhaseType.TWP && (
-                  <div className="mt-8 p-6 bg-successGreen/5 border border-successGreen/10 rounded-2xl flex items-center gap-4 animate-pop">
-                      <MilestoneMosaic ariaLabel="" className="w-12 h-12" />
-                      <div className="text-left">
-                         <p className="text-[10px] text-successGreen font-bold uppercase tracking-widest mb-1">Safety Net Locked</p>
-                         <p className="text-sm text-charcoal">Completed {formatDateReadable(status.twpCompletedDate || '')}</p>
-                      </div>
-                  </div>
-                )}
               </div>
             </Card>
 
@@ -358,26 +403,25 @@ const Dashboard: React.FC = () => {
                   </div>
                   <Input label="Notes" type="text" placeholder="Optional notes..." value={note} onChange={(e) => setNote(e.target.value)} />
                   {formError && <div className="p-3 bg-red-50 text-red-700 rounded-xl text-xs font-medium">{formError}</div>}
-                  <Button type="submit" fullWidth className="bg-burgundy">Add Entry</Button>
+                  <Button type="submit" fullWidth className="bg-burgundy">Add to Log</Button>
               </form>
             </Card>
           </div>
 
-          {/* Right Column: Data Log (8 Cols) */}
           <div className="lg:col-span-8 space-y-8 fade-in-up delay-200">
             {entries.length > 0 && status && (
-              <Card variant="glass" title="Historical Trends">
+              <Card variant="glass" title="Earnings History">
                   <IncomeChart entries={status.entries} />
               </Card>
             )}
 
              <Card variant="glass">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
-                  <h3 className="text-2xl font-serif font-medium text-burgundy tracking-tight">Work History Log</h3>
+                  <h3 className="text-2xl font-serif font-medium text-burgundy tracking-tight">Work Entry Log</h3>
                   {entries.length > 0 && (
                     <div className="flex items-center gap-6">
                       <button onClick={() => setSelectedIds(selectedIds.length === entries.length ? [] : entries.map(e => e.id))} className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate/50 hover:text-burgundy transition-colors">
-                        {selectedIds.length === entries.length ? 'Clear Selection' : 'Select All'}
+                        {selectedIds.length === entries.length ? 'Deselect All' : 'Select All'}
                       </button>
                       {selectedIds.length > 0 && (
                         <Button variant="danger" onClick={() => setIdsToDelete(selectedIds)} className="px-5 py-2 text-xs rounded-full animate-pop">
@@ -391,16 +435,16 @@ const Dashboard: React.FC = () => {
                 {entries.length === 0 ? (
                     <div className="py-24 text-center">
                         <EmptyStatePlot ariaLabel="" className="w-32 h-32 mx-auto mb-8 opacity-40" />
-                        <p className="text-slate font-light italic text-xl">Your work journey begins with your first entry.</p>
+                        <p className="text-slate font-light italic text-xl">Log your first month of work to begin tracking progress.</p>
                     </div>
                 ) : (
                     <div className="space-y-4">
                         {status?.entries.map((entry) => {
                             const isSelected = selectedIds.includes(entry.id);
                             return (
-                                <div key={entry.id} className={`group flex flex-col md:flex-row md:items-center justify-between p-6 rounded-[2rem] transition-all duration-500 gap-4 border ${isSelected ? 'bg-coral/5 border-coral/30 shadow-sm' : 'bg-white/40 hover:bg-white border-transparent'}`}>
+                                <div key={entry.id} className={`group flex flex-col md:flex-row md:items-center justify-between p-6 rounded-[2rem] transition-all duration-500 gap-4 border ${isSelected ? 'bg-coral/5 border-coral/30' : 'bg-white/40 hover:bg-white border-transparent'}`}>
                                     <div className="flex items-center gap-6">
-                                        <input type="checkbox" className="w-6 h-6 rounded-full border-2 border-taupe text-coral focus:ring-coral cursor-pointer" checked={isSelected} onChange={() => setSelectedIds(prev => prev.includes(entry.id) ? prev.filter(i => i !== entry.id) : [...prev, entry.id])} aria-label={`Select entry for ${formatDateReadable(entry.month)}`} />
+                                        <input type="checkbox" className="w-6 h-6 rounded-full border-2 border-taupe text-coral focus:ring-coral cursor-pointer" checked={isSelected} onChange={() => setSelectedIds(prev => prev.includes(entry.id) ? prev.filter(i => i !== entry.id) : [...prev, entry.id])} />
                                         <div>
                                             <span className="font-serif text-burgundy text-xl block mb-1">{formatDateReadable(entry.month)}</span>
                                             <span className="text-[10px] text-slate font-bold uppercase tracking-widest opacity-60">{entry.phaseAtTime}</span>
@@ -432,8 +476,8 @@ const Dashboard: React.FC = () => {
             onClose={() => setIdsToDelete([])}
             onConfirm={confirmDelete}
             isLoading={isDeleting}
-            title="Remove Entries"
-            message={`Are you sure you want to delete ${idsToDelete.length} month(s) from your history?`}
+            title="Delete Entries"
+            message={`Remove ${idsToDelete.length} entries from your history?`}
         />
       </div>
     </Layout>

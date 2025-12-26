@@ -86,28 +86,34 @@ const Learn: React.FC = () => {
         </section>
 
         {/* Phase 3 */}
-        <section className="max-w-4xl mx-auto bg-white rounded-[4rem] p-12 md:p-20 shadow-soft border border-taupe/10 relative overflow-hidden fade-in-up delay-200">
-           <div className="absolute top-0 right-0 w-64 h-64 opacity-20 -mr-20 -mt-20">
-              <GrowthPlot ariaLabel="Growth decoration" className="w-full h-auto" />
-           </div>
-           
-           <div className="relative z-10 text-center">
-             <span className="text-slate font-bold tracking-[0.4em] text-[10px] uppercase mb-6 block">Post-Eligibility</span>
-             <h2 className="text-5xl font-serif text-burgundy mb-8">Final Transition</h2>
-             <p className="text-2xl text-slate font-light leading-relaxed mb-12">
-               Once the 36-month EPE ends, benefits continue as long as you remain disabled and earn below the SGA limit.
-             </p>
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 text-left pt-12 border-t border-taupe/10">
-                <div>
-                   <h4 className="text-xl font-bold text-burgundy mb-4">Termination Rule</h4>
-                   <p className="text-slate font-light">Earning over SGA after your EPE ends can lead to benefit termination, but support isn't gone forever.</p>
-                </div>
-                <div>
-                   <h4 className="text-xl font-bold text-burgundy mb-4">EXR (Expedited Reinstatement)</h4>
-                   <p className="text-slate font-light">If you stop working within 5 years of termination, you can request benefits restart without a new application.</p>
-                </div>
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-center fade-in-up delay-200">
+          <div className="lg:col-span-5">
+             <div className="relative">
+                <GrowthPlot ariaLabel="Sustainable growth illustration" className="w-full h-auto rounded-[3rem] shadow-luxury" />
+                <div className="absolute -top-6 -left-6 bg-successGreen text-white px-6 py-2 rounded-full font-serif text-lg">Phase 03</div>
              </div>
-           </div>
+          </div>
+          <div className="lg:col-span-7">
+            <h2 className="text-5xl font-serif text-burgundy mb-8">Post-Eligibility Balance</h2>
+            <div className="prose prose-lg text-slate font-light max-w-none">
+              <p className="text-xl text-charcoal mb-8 leading-relaxed">
+                Once the 36-month EPE ends, benefits continue as long as you remain disabled and earn below the SGA limit.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                 <div className="p-6 bg-white rounded-2xl border border-taupe/10 shadow-sm">
+                    <h4 className="text-lg font-bold text-burgundy mb-3">Termination Rule</h4>
+                    <p className="text-sm leading-relaxed">Earning over SGA after your EPE ends can lead to benefit termination, as the "automatic toggle" safety net has concluded.</p>
+                 </div>
+                 <div className="p-6 bg-white rounded-2xl border border-taupe/10 shadow-sm">
+                    <h4 className="text-lg font-bold text-burgundy mb-3">Expedited Reinstatement</h4>
+                    <p className="text-sm leading-relaxed">If you stop working within 5 years of termination, you can request benefits restart (EXR) without a new application.</p>
+                 </div>
+              </div>
+              <p className="text-burgundy italic border-l-2 border-coral pl-6 py-3 bg-coral/5 rounded-r-xl">
+                Goal: Transitioning to long-term stability where work and wellness coexist.
+              </p>
+            </div>
+          </div>
         </section>
       </div>
     </Layout>
